@@ -1,0 +1,107 @@
+{
+  "companies": [
+    {"symbol": "AAPL", "name": "Apple Inc.", "sector": "Technology", "description": "Designs consumer electronics, software, and services."},
+    {"symbol": "MSFT", "name": "Microsoft Corporation", "sector": "Technology", "description": "Software, cloud computing (Azure), and enterprise services."},
+    {"symbol": "NVDA", "name": "NVIDIA Corporation", "sector": "Technology", "description": "Designs GPUs for gaming, data centers, and AI compute."},
+    {"symbol": "AMD", "name": "Advanced Micro Devices", "sector": "Technology", "description": "Designs CPUs and GPUs for consumer and data center markets."},
+    {"symbol": "INTC", "name": "Intel Corporation", "sector": "Technology", "description": "Designs and manufactures CPUs and semiconductor products."},
+    {"symbol": "TSM", "name": "Taiwan Semiconductor Manufacturing", "sector": "Technology", "description": "World's largest contract chip manufacturer (foundry)."},
+    {"symbol": "AVGO", "name": "Broadcom Inc.", "sector": "Technology", "description": "Semiconductor and infrastructure software supplier."},
+    {"symbol": "GOOGL", "name": "Alphabet Inc.", "sector": "Technology", "description": "Search, advertising, cloud computing, and AI."},
+    {"symbol": "ORCL", "name": "Oracle Corporation", "sector": "Technology", "description": "Enterprise database software and cloud infrastructure."},
+
+    {"symbol": "JPM", "name": "JPMorgan Chase & Co.", "sector": "Financials", "description": "Banking and financial services."},
+    {"symbol": "GS", "name": "Goldman Sachs Group", "sector": "Financials", "description": "Investment banking and asset management."},
+    {"symbol": "V", "name": "Visa Inc.", "sector": "Financials", "description": "Global payments network operator."},
+    {"symbol": "MA", "name": "Mastercard Inc.", "sector": "Financials", "description": "Global payments network operator."},
+
+    {"symbol": "XOM", "name": "Exxon Mobil Corporation", "sector": "Energy", "description": "Oil and gas exploration, production, and refining."},
+    {"symbol": "CVX", "name": "Chevron Corporation", "sector": "Energy", "description": "Oil and gas exploration, production, and refining."},
+    {"symbol": "COP", "name": "ConocoPhillips", "sector": "Energy", "description": "Oil and gas exploration and production."},
+    {"symbol": "SLB", "name": "Schlumberger Limited", "sector": "Energy", "description": "Oilfield services and equipment provider."},
+
+    {"symbol": "JNJ", "name": "Johnson & Johnson", "sector": "Healthcare", "description": "Pharmaceuticals and medical devices."},
+    {"symbol": "PFE", "name": "Pfizer Inc.", "sector": "Healthcare", "description": "Pharmaceutical research and manufacturing."},
+    {"symbol": "MRK", "name": "Merck & Co.", "sector": "Healthcare", "description": "Pharmaceutical research and manufacturing."},
+    {"symbol": "UNH", "name": "UnitedHealth Group", "sector": "Healthcare", "description": "Health insurance and healthcare services."},
+
+    {"symbol": "AMZN", "name": "Amazon.com Inc.", "sector": "Consumer", "description": "E-commerce and cloud computing (AWS)."},
+    {"symbol": "TSLA", "name": "Tesla Inc.", "sector": "Consumer", "description": "Electric vehicles and energy storage."},
+    {"symbol": "MCD", "name": "McDonald's Corporation", "sector": "Consumer", "description": "Global fast food restaurant chain."},
+    {"symbol": "SBUX", "name": "Starbucks Corporation", "sector": "Consumer", "description": "Global coffeehouse chain."},
+    {"symbol": "NKE", "name": "Nike Inc.", "sector": "Consumer", "description": "Athletic footwear and apparel."},
+
+    {"symbol": "BA", "name": "Boeing Company", "sector": "Industrials", "description": "Commercial and defense aircraft manufacturer."},
+    {"symbol": "LMT", "name": "Lockheed Martin", "sector": "Industrials", "description": "Aerospace and defense contractor."},
+    {"symbol": "CAT", "name": "Caterpillar Inc.", "sector": "Industrials", "description": "Heavy construction and mining equipment."},
+    {"symbol": "GE", "name": "General Electric", "sector": "Industrials", "description": "Aviation engines, power, and renewable energy."},
+
+    {"symbol": "NFLX", "name": "Netflix Inc.", "sector": "Communication", "description": "Streaming video entertainment."},
+    {"symbol": "DIS", "name": "Walt Disney Company", "sector": "Communication", "description": "Media, entertainment, and streaming."},
+    {"symbol": "T", "name": "AT&T Inc.", "sector": "Communication", "description": "Telecommunications and wireless services."},
+    {"symbol": "VZ", "name": "Verizon Communications", "sector": "Communication", "description": "Telecommunications and wireless services."},
+
+    {"symbol": "NEE", "name": "NextEra Energy", "sector": "Utilities", "description": "Electric utility and renewable energy generation."},
+    {"symbol": "DUK", "name": "Duke Energy", "sector": "Utilities", "description": "Electric and gas utility."},
+    {"symbol": "SO", "name": "Southern Company", "sector": "Utilities", "description": "Electric and gas utility."}
+  ],
+
+  "relationships": [
+    {"company": "AAPL", "related_company": "TSM", "relationship_type": "supplier", "notes": "TSMC manufactures Apple's custom chips"},
+    {"company": "AAPL", "related_company": "AVGO", "relationship_type": "supplier", "notes": "Broadcom supplies wireless chips to Apple"},
+    {"company": "NVDA", "related_company": "TSM", "relationship_type": "supplier", "notes": "TSMC manufactures Nvidia's GPUs"},
+    {"company": "AMD", "related_company": "TSM", "relationship_type": "supplier", "notes": "TSMC manufactures AMD's chips"},
+    {"company": "MSFT", "related_company": "NVDA", "relationship_type": "supplier", "notes": "Microsoft buys GPUs from Nvidia for Azure AI infrastructure"},
+
+    {"company": "AAPL", "related_company": "MSFT", "relationship_type": "competitor", "notes": ""},
+    {"company": "MSFT", "related_company": "AAPL", "relationship_type": "competitor", "notes": ""},
+    {"company": "AAPL", "related_company": "GOOGL", "relationship_type": "competitor", "notes": ""},
+    {"company": "GOOGL", "related_company": "AAPL", "relationship_type": "competitor", "notes": ""},
+    {"company": "NVDA", "related_company": "AMD", "relationship_type": "competitor", "notes": ""},
+    {"company": "AMD", "related_company": "NVDA", "relationship_type": "competitor", "notes": ""},
+    {"company": "NVDA", "related_company": "INTC", "relationship_type": "competitor", "notes": ""},
+    {"company": "INTC", "related_company": "NVDA", "relationship_type": "competitor", "notes": ""},
+    {"company": "AMD", "related_company": "INTC", "relationship_type": "competitor", "notes": ""},
+    {"company": "INTC", "related_company": "AMD", "relationship_type": "competitor", "notes": ""},
+    {"company": "GOOGL", "related_company": "MSFT", "relationship_type": "competitor", "notes": "Cloud computing rivalry"},
+    {"company": "MSFT", "related_company": "GOOGL", "relationship_type": "competitor", "notes": "Cloud computing rivalry"},
+    {"company": "ORCL", "related_company": "MSFT", "relationship_type": "peer", "notes": "Enterprise software peers"},
+    {"company": "MSFT", "related_company": "ORCL", "relationship_type": "peer", "notes": "Enterprise software peers"},
+
+    {"company": "V", "related_company": "MA", "relationship_type": "competitor", "notes": ""},
+    {"company": "MA", "related_company": "V", "relationship_type": "competitor", "notes": ""},
+    {"company": "JPM", "related_company": "GS", "relationship_type": "competitor", "notes": ""},
+    {"company": "GS", "related_company": "JPM", "relationship_type": "competitor", "notes": ""},
+
+    {"company": "XOM", "related_company": "CVX", "relationship_type": "competitor", "notes": ""},
+    {"company": "CVX", "related_company": "XOM", "relationship_type": "competitor", "notes": ""},
+    {"company": "XOM", "related_company": "SLB", "relationship_type": "supplier", "notes": "Schlumberger provides oilfield services to Exxon"},
+    {"company": "CVX", "related_company": "SLB", "relationship_type": "supplier", "notes": "Schlumberger provides oilfield services to Chevron"},
+    {"company": "COP", "related_company": "XOM", "relationship_type": "peer", "notes": ""},
+    {"company": "COP", "related_company": "CVX", "relationship_type": "peer", "notes": ""},
+
+    {"company": "PFE", "related_company": "MRK", "relationship_type": "competitor", "notes": ""},
+    {"company": "MRK", "related_company": "PFE", "relationship_type": "competitor", "notes": ""},
+    {"company": "JNJ", "related_company": "PFE", "relationship_type": "competitor", "notes": ""},
+    {"company": "JNJ", "related_company": "MRK", "relationship_type": "competitor", "notes": ""},
+
+    {"company": "MCD", "related_company": "SBUX", "relationship_type": "competitor", "notes": "Breakfast/coffee overlap"},
+    {"company": "SBUX", "related_company": "MCD", "relationship_type": "competitor", "notes": "Breakfast/coffee overlap"},
+    {"company": "AMZN", "related_company": "MSFT", "relationship_type": "competitor", "notes": "AWS vs Azure cloud rivalry"},
+    {"company": "MSFT", "related_company": "AMZN", "relationship_type": "competitor", "notes": "AWS vs Azure cloud rivalry"},
+    {"company": "AMZN", "related_company": "GOOGL", "relationship_type": "competitor", "notes": "AWS vs Google Cloud rivalry"},
+
+    {"company": "BA", "related_company": "GE", "relationship_type": "supplier", "notes": "GE Aviation supplies jet engines to Boeing aircraft"},
+    {"company": "BA", "related_company": "LMT", "relationship_type": "competitor", "notes": "Aerospace/defense prime contractors"},
+    {"company": "LMT", "related_company": "BA", "relationship_type": "competitor", "notes": "Aerospace/defense prime contractors"},
+
+    {"company": "DIS", "related_company": "NFLX", "relationship_type": "competitor", "notes": "Streaming rivalry"},
+    {"company": "NFLX", "related_company": "DIS", "relationship_type": "competitor", "notes": "Streaming rivalry"},
+    {"company": "T", "related_company": "VZ", "relationship_type": "competitor", "notes": "Telecom rivalry"},
+    {"company": "VZ", "related_company": "T", "relationship_type": "competitor", "notes": "Telecom rivalry"},
+
+    {"company": "NEE", "related_company": "DUK", "relationship_type": "peer", "notes": ""},
+    {"company": "DUK", "related_company": "SO", "relationship_type": "peer", "notes": ""},
+    {"company": "SO", "related_company": "NEE", "relationship_type": "peer", "notes": ""}
+  ]
+}

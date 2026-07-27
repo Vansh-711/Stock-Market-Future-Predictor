@@ -1,0 +1,77 @@
+"""
+Thin wrapper around yfinance for historical daily prices, with an in-memory
++ on-disk cache so `run_backtest` doesn't re-download the same ticker
+history on every run.
+"""
+import os
+import pandas as pd
+
+_CACHE_DIR = os.path.join(os.path.dirname(__file__), "_price_cache")
+os.makedirs(_CACHE_DIR, exist_ok=True)
+_memory_cache = {}
+
+
+def _normalize_index(df):
+    """Force a tz-naive DatetimeIndex (CSV cache often stores tz offsets as strings)."""
+    if df is None or df.empty:
+        return df
+    out = df.copy()
+    idx = pd.to_datetime(out.index, utc=True, errors="coerce")
+    idx = idx.tz_convert(None)
+    out.index = idx
+    out = out.loc[~out.index.isna()].sort_index()
+    return out
+
+
+def _load_history(symbol):
+    if symbol in _memory_cache:
+        return _memory_cache[symbol]
+
+    cache_path = os.path.join(_CACHE_DIR, f"{symbol}.csv")
+    if os.path.exists(cache_path):
+        df = pd.read_csv(cache_path, index_col=0, parse_dates=True)
+        df = _normalize_index(df)
+    else:
+        import yfinance as yf
+        df = yf.Ticker(symbol).history(period="2y")
+        if df.empty:
+            df = pd.DataFrame()
+        else:
+            df = _normalize_index(df)
+            df.to_csv(cache_path)
+
+    _memory_cache[symbol] = df
+    return df
+
+
+def get_price_change(symbol, from_date, window_days):
+    """
+    Returns % price change of `symbol` from the trading day of `from_date`
+    to `window_days` trading days later. Returns None if data unavailable.
+    """
+    df = _load_history(symbol)
+    if df.empty:
+        return None
+
+    target_date = pd.Timestamp(from_date)
+    if target_date.tzinfo is not None:
+        target_date = target_date.tz_convert("UTC").tz_localize(None)
+    target_date = target_date.normalize()
+
+    on_or_after = df.index[df.index >= target_date]
+    if len(on_or_after) == 0:
+        return None
+    start_idx = df.index.get_loc(on_or_after[0])
+    if isinstance(start_idx, slice):
+        start_idx = start_idx.start
+
+    end_idx = start_idx + window_days
+    if end_idx >= len(df):
+        return None
+
+    start_price = float(df.iloc[start_idx]["Close"])
+    end_price = float(df.iloc[end_idx]["Close"])
+    if start_price == 0:
+        return None
+
+    return ((end_price - start_price) / start_price) * 100

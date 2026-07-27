@@ -1,0 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --canvas: #0B0D12;
+  --surface: #12151C;
+  --surface-raised: #181C25;
+  --surface-hover: #1D2129;
+  --border: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.16);
+  --text-primary: #E7E9EE;
+  --text-secondary: #9AA1AE;
+  --text-muted: #676E7C;
+  --accent: #4C8DFF;
+  --accent-hover: #6BA1FF;
+  --accent-muted: rgba(76,141,255,0.14);
+  --positive: #4CC38A;
+  --positive-muted: rgba(76,195,138,0.14);
+  --negative: #E0645C;
+  --negative-muted: rgba(224,100,92,0.14);
+  --warning: #E0A23D;
+  --warning-muted: rgba(224,162,61,0.14);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--canvas);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  background: var(--accent-muted);
+  color: var(--text-primary);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--canvas);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-hover);
+  border-radius: 999px;
+}
+
+@layer utilities {
+  .text-display {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  .text-display-data {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    line-height: 1.2;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  .text-h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  .text-h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    line-height: 1.2;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  .text-body {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .text-body-medium {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  .text-small {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .text-small-medium {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  .text-data {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.2;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .text-data-medium {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.2;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  .text-data-lg {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    line-height: 1.2;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  .eyebrow-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    line-height: 1.5;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .skeleton-shimmer {
+    background-image: linear-gradient(90deg, var(--surface) 0%, var(--surface-raised) 50%, var(--surface) 100%);
+    background-size: 200% 100%;
+  }
+}
