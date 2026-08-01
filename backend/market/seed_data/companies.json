@@ -43,7 +43,30 @@
 
     {"symbol": "NEE", "name": "NextEra Energy", "sector": "Utilities", "description": "Electric utility and renewable energy generation."},
     {"symbol": "DUK", "name": "Duke Energy", "sector": "Utilities", "description": "Electric and gas utility."},
-    {"symbol": "SO", "name": "Southern Company", "sector": "Utilities", "description": "Electric and gas utility."}
+    {"symbol": "SO", "name": "Southern Company", "sector": "Utilities", "description": "Electric and gas utility."},
+
+    {"symbol": "CRM", "name": "Salesforce Inc.", "sector": "Technology", "description": "Customer relationship management software and cloud services."},
+    {"symbol": "ADBE", "name": "Adobe Inc.", "sector": "Technology", "description": "Creative, document, and digital-experience software."},
+    {"symbol": "QCOM", "name": "Qualcomm Inc.", "sector": "Technology", "description": "Wireless chips, connectivity platforms, and patent licensing."},
+    {"symbol": "TXN", "name": "Texas Instruments", "sector": "Technology", "description": "Analog and embedded semiconductor manufacturer."},
+    {"symbol": "MU", "name": "Micron Technology", "sector": "Technology", "description": "Memory and storage semiconductor producer."},
+
+    {"symbol": "WMT", "name": "Walmart Inc.", "sector": "Consumer", "description": "Global omnichannel retailer and grocery operator."},
+    {"symbol": "COST", "name": "Costco Wholesale", "sector": "Consumer", "description": "Membership warehouse retailer."},
+    {"symbol": "PG", "name": "Procter & Gamble", "sector": "Consumer", "description": "Branded consumer packaged-goods company."},
+    {"symbol": "KO", "name": "Coca-Cola Company", "sector": "Consumer", "description": "Global non-alcoholic beverage company."},
+
+    {"symbol": "UPS", "name": "United Parcel Service", "sector": "Industrials", "description": "Package delivery and logistics network."},
+    {"symbol": "FDX", "name": "FedEx Corporation", "sector": "Industrials", "description": "Express delivery, freight, and logistics services."},
+    {"symbol": "DE", "name": "Deere & Company", "sector": "Industrials", "description": "Agricultural, construction, and forestry equipment maker."},
+
+    {"symbol": "ABBV", "name": "AbbVie Inc.", "sector": "Healthcare", "description": "Biopharmaceutical company focused on immunology and oncology."},
+    {"symbol": "LLY", "name": "Eli Lilly and Company", "sector": "Healthcare", "description": "Pharmaceutical company with diabetes and obesity treatments."},
+
+    {"symbol": "OXY", "name": "Occidental Petroleum", "sector": "Energy", "description": "Oil, gas, chemicals, and carbon-management company."},
+
+    {"symbol": "BAC", "name": "Bank of America", "sector": "Financials", "description": "Consumer, commercial, and investment banking company."},
+    {"symbol": "WFC", "name": "Wells Fargo & Company", "sector": "Financials", "description": "Consumer and commercial banking company."}
   ],
 
   "relationships": [
@@ -102,6 +125,61 @@
 
     {"company": "NEE", "related_company": "DUK", "relationship_type": "peer", "notes": ""},
     {"company": "DUK", "related_company": "SO", "relationship_type": "peer", "notes": ""},
-    {"company": "SO", "related_company": "NEE", "relationship_type": "peer", "notes": ""}
+    {"company": "SO", "related_company": "NEE", "relationship_type": "peer", "notes": ""},
+
+    {"company": "CRM", "related_company": "MSFT", "relationship_type": "competitor", "notes": "Enterprise software and cloud applications"},
+    {"company": "MSFT", "related_company": "CRM", "relationship_type": "competitor", "notes": "Enterprise software and cloud applications"},
+    {"company": "CRM", "related_company": "ORCL", "relationship_type": "competitor", "notes": "Enterprise applications rivalry"},
+    {"company": "ORCL", "related_company": "CRM", "relationship_type": "competitor", "notes": "Enterprise applications rivalry"},
+    {"company": "ADBE", "related_company": "MSFT", "relationship_type": "competitor", "notes": "Creative and productivity software overlap"},
+    {"company": "ADBE", "related_company": "CRM", "relationship_type": "peer", "notes": "Digital experience software peers"},
+    {"company": "AAPL", "related_company": "QCOM", "relationship_type": "supplier", "notes": "Qualcomm supplies modem technology to Apple"},
+    {"company": "QCOM", "related_company": "AVGO", "relationship_type": "competitor", "notes": "Connectivity semiconductor rivalry"},
+    {"company": "QCOM", "related_company": "TXN", "relationship_type": "peer", "notes": "Diversified semiconductor peers"},
+    {"company": "TXN", "related_company": "INTC", "relationship_type": "peer", "notes": "Large-cap semiconductor peers"},
+    {"company": "TXN", "related_company": "MU", "relationship_type": "peer", "notes": "Semiconductor industry peers"},
+    {"company": "NVDA", "related_company": "MU", "relationship_type": "supplier", "notes": "Micron supplies high-bandwidth memory for AI systems"},
+    {"company": "MU", "related_company": "TSM", "relationship_type": "peer", "notes": "Semiconductor manufacturing ecosystem peers"},
+
+    {"company": "WMT", "related_company": "AMZN", "relationship_type": "competitor", "notes": "Retail and fulfillment rivalry"},
+    {"company": "AMZN", "related_company": "WMT", "relationship_type": "competitor", "notes": "Retail and fulfillment rivalry"},
+    {"company": "WMT", "related_company": "COST", "relationship_type": "competitor", "notes": "Value retail and grocery rivalry"},
+    {"company": "COST", "related_company": "WMT", "relationship_type": "competitor", "notes": "Value retail and grocery rivalry"},
+    {"company": "COST", "related_company": "AMZN", "relationship_type": "competitor", "notes": "Membership retail versus ecommerce"},
+    {"company": "PG", "related_company": "WMT", "relationship_type": "customer", "notes": "Walmart is a major retail channel for packaged goods"},
+    {"company": "PG", "related_company": "COST", "relationship_type": "customer", "notes": "Costco is a major retail channel for packaged goods"},
+    {"company": "KO", "related_company": "MCD", "relationship_type": "customer", "notes": "McDonald's is a major fountain beverage customer"},
+    {"company": "KO", "related_company": "WMT", "relationship_type": "customer", "notes": "Walmart is a major beverage retail channel"},
+
+    {"company": "AMZN", "related_company": "UPS", "relationship_type": "supplier", "notes": "UPS provides parcel delivery capacity for Amazon orders"},
+    {"company": "AMZN", "related_company": "FDX", "relationship_type": "supplier", "notes": "FedEx provides logistics capacity across parts of Amazon's network"},
+    {"company": "UPS", "related_company": "FDX", "relationship_type": "competitor", "notes": "Parcel delivery and logistics rivalry"},
+    {"company": "FDX", "related_company": "UPS", "relationship_type": "competitor", "notes": "Parcel delivery and logistics rivalry"},
+    {"company": "DE", "related_company": "CAT", "relationship_type": "competitor", "notes": "Agricultural and construction equipment overlap"},
+    {"company": "CAT", "related_company": "DE", "relationship_type": "competitor", "notes": "Agricultural and construction equipment overlap"},
+    {"company": "DE", "related_company": "XOM", "relationship_type": "customer", "notes": "Energy and construction activity supports heavy-equipment demand"},
+
+    {"company": "ABBV", "related_company": "LLY", "relationship_type": "competitor", "notes": "Biopharmaceutical portfolio competition"},
+    {"company": "LLY", "related_company": "ABBV", "relationship_type": "competitor", "notes": "Biopharmaceutical portfolio competition"},
+    {"company": "ABBV", "related_company": "PFE", "relationship_type": "peer", "notes": "Large-cap pharmaceutical peers"},
+    {"company": "LLY", "related_company": "MRK", "relationship_type": "peer", "notes": "Large-cap pharmaceutical peers"},
+
+    {"company": "OXY", "related_company": "XOM", "relationship_type": "peer", "notes": "US oil and gas producers"},
+    {"company": "OXY", "related_company": "CVX", "relationship_type": "peer", "notes": "US oil and gas producers"},
+    {"company": "OXY", "related_company": "SLB", "relationship_type": "supplier", "notes": "SLB provides oilfield services to Occidental"},
+
+    {"company": "BAC", "related_company": "JPM", "relationship_type": "competitor", "notes": "US universal banking rivalry"},
+    {"company": "JPM", "related_company": "BAC", "relationship_type": "competitor", "notes": "US universal banking rivalry"},
+    {"company": "BAC", "related_company": "WFC", "relationship_type": "competitor", "notes": "US consumer and commercial banking rivalry"},
+    {"company": "WFC", "related_company": "BAC", "relationship_type": "competitor", "notes": "US consumer and commercial banking rivalry"},
+    {"company": "WFC", "related_company": "JPM", "relationship_type": "competitor", "notes": "US consumer and commercial banking rivalry"},
+    {"company": "WFC", "related_company": "GS", "relationship_type": "peer", "notes": "Large US financial institutions"},
+
+    {"company": "UNH", "related_company": "JNJ", "relationship_type": "customer", "notes": "UnitedHealth's care network is a major purchaser of medical products"},
+    {"company": "UNH", "related_company": "PFE", "relationship_type": "customer", "notes": "UnitedHealth's benefits network is a major pharmaceutical purchaser"},
+    {"company": "TSLA", "related_company": "NVDA", "relationship_type": "supplier", "notes": "NVIDIA supplies AI compute technology used in Tesla systems"},
+    {"company": "TSLA", "related_company": "NEE", "relationship_type": "peer", "notes": "Energy-transition and grid-storage ecosystem peers"},
+    {"company": "NKE", "related_company": "AMZN", "relationship_type": "customer", "notes": "Amazon is a major digital retail channel for Nike products"},
+    {"company": "NKE", "related_company": "SBUX", "relationship_type": "peer", "notes": "Global consumer brand peers"}
   ]
 }

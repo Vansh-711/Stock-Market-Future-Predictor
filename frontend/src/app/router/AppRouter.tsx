@@ -9,6 +9,8 @@ import { LoginPage } from '@/pages/login/ui/LoginPage';
 import { NotFoundPage } from '@/pages/not-found/ui/NotFoundPage';
 import { PatternsPage } from '@/pages/patterns/ui/PatternsPage';
 import { SignupPage } from '@/pages/signup/ui/SignupPage';
+import { SettingsPage } from '@/pages/settings/ui/SettingsPage';
+import { PipelinePage } from '@/pages/pipeline/ui/PipelinePage';
 
 export function AppRouter() {
   return (
@@ -22,6 +24,8 @@ export function AppRouter() {
         <Route path="chains" element={<ChainsListPage />} />
         <Route path="chains/:id" element={<ChainDetailPage />} />
         <Route path="companies/:symbol" element={<CompanyDetailPage />} />
+        <Route path="settings" element={<SettingsPage />} />
+        <Route path="pipeline" element={<PipelinePage />} />
         <Route path="404" element={<NotFoundPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/404" replace />} />

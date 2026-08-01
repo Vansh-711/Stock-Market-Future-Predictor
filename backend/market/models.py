@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+import uuid
 
 
 class Company(models.Model):
@@ -87,3 +89,47 @@ class GeneratedChain(models.Model):
 
     def __str__(self):
         return f"{self.trigger_event.company.symbol} -> {self.affected_company.symbol}"
+
+
+class PipelineJob(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("running", "Running"),
+        ("completed", "Completed"),
+        ("failed", "Failed"),
+        ("cancelled", "Cancelled"),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="pipeline_jobs")
+    status = models.CharField(max_length=12, choices=STATUS_CHOICES, default="pending")
+    current_phase = models.CharField(max_length=20, default="seed")
+    progress_percent = models.FloatField(default=0)
+    current_step = models.CharField(max_length=255, blank=True)
+    items_total = models.PositiveIntegerField(default=0)
+    items_done = models.PositiveIntegerField(default=0)
+    upload_path = models.CharField(max_length=255, blank=True)
+    adapter_id = models.CharField(max_length=50, blank=True)
+    options_json = models.JSONField(default=dict, blank=True)
+    cancel_requested = models.BooleanField(default=False)
+    error_message = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.id} ({self.status})"
+
+
+class PipelineLog(models.Model):
+    LEVEL_CHOICES = [("info", "Info"), ("warning", "Warning"), ("error", "Error")]
+
+    job = models.ForeignKey(PipelineJob, on_delete=models.CASCADE, related_name="logs")
+    level = models.CharField(max_length=10, choices=LEVEL_CHOICES, default="info")
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]

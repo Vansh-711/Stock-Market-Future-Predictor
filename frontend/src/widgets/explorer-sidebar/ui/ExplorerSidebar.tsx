@@ -2,6 +2,7 @@ import { Search } from 'lucide-react';
 import type { Company } from '@/entities/company/model/types';
 import { SectorBadge } from '@/entities/company/ui/SectorBadge';
 import { Input } from '@/shared/ui/Input';
+import { Select } from '@/shared/ui/Select';
 import { cn } from '@/shared/lib/cn';
 
 type ExplorerSidebarProps = {
@@ -10,9 +11,13 @@ type ExplorerSidebarProps = {
   selectedSymbol: string | null;
   onQueryChange: (query: string) => void;
   onSelect: (symbol: string) => void;
+  sectors: string[];
+  sector: string;
+  onSectorChange: (sector: string) => void;
+  relationshipCounts: Record<string, number>;
 };
 
-export function ExplorerSidebar({ companies, query, selectedSymbol, onQueryChange, onSelect }: ExplorerSidebarProps) {
+export function ExplorerSidebar({ companies, query, selectedSymbol, onQueryChange, onSelect, sectors, sector, onSectorChange, relationshipCounts }: ExplorerSidebarProps) {
   return (
     <aside className="flex h-full min-h-graph w-full flex-col rounded-card border border-border bg-surface p-4 xl:w-sidebar xl:shrink-0">
       <Input
@@ -23,6 +28,18 @@ export function ExplorerSidebar({ companies, query, selectedSymbol, onQueryChang
         onChange={(event) => onQueryChange(event.target.value)}
         leftIcon={<Search className="h-icon w-icon" aria-hidden="true" />}
       />
+      <div className="mt-3">
+        <Select label="Sector" name="explorer-sector" value={sector} onChange={(event) => onSectorChange(event.target.value)}>
+          <option value="all">All sectors</option>
+          {sectors.map((value) => <option key={value} value={value}>{value}</option>)}
+        </Select>
+      </div>
+      <div className="mt-4 border-y border-border py-3">
+        <p className="text-small-medium text-text-secondary">Visible relationships</p>
+        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-small text-text-muted">
+          {Object.entries(relationshipCounts).map(([type, count]) => <span key={type}><span className="text-text-primary">{count}</span> {type}</span>)}
+        </div>
+      </div>
       <div className="mt-4 min-h-0 flex-1 overflow-auto">
         {companies.map((company) => {
           const isSelected = selectedSymbol === company.symbol;

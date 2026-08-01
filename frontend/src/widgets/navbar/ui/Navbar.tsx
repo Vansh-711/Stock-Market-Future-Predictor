@@ -13,6 +13,7 @@ const navItems = [
   { label: 'Dashboard', to: '/' },
   { label: 'Patterns', to: '/patterns' },
   { label: 'Explorer', to: '/explorer' },
+  { label: 'Pipeline', to: '/pipeline' },
 ];
 
 function NavItem({ to, label, onClick }: { to: string; label: string; onClick?: () => void }) {
@@ -107,6 +108,9 @@ export function Navbar() {
                     <div className="text-body-medium text-text-primary">{user?.username}</div>
                     <div className="mt-1 text-small text-text-secondary">{user?.email}</div>
                   </div>
+                  <Link to="/settings" onClick={() => setIsSettingsOpen(false)} className="mt-3 flex h-9 items-center gap-2 rounded-control px-2 text-body-medium text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary">
+                    <Settings className="h-icon w-icon" aria-hidden="true" /> Settings
+                  </Link>
                   <Button className="mt-4" variant="ghost" leftIcon={<LogOut className="h-icon w-icon" aria-hidden="true" />} onClick={handleLogout}>
                     Log out
                   </Button>
@@ -144,6 +148,9 @@ export function Navbar() {
                   <div className="text-small text-text-secondary">{user?.email}</div>
                 </div>
               </div>
+              <Link to="/settings" onClick={() => setIsMenuOpen(false)} className="mt-4 flex h-9 items-center gap-2 rounded-control px-2 text-body-medium text-text-secondary hover:bg-surface-hover hover:text-text-primary">
+                <Settings className="h-icon w-icon" aria-hidden="true" /> Settings
+              </Link>
               <Button className="mt-4" variant="secondary" leftIcon={<LogOut className="h-icon w-icon" aria-hidden="true" />} onClick={handleLogout}>
                 Log out
               </Button>

@@ -1,3 +1,5 @@
+from collections import Counter
+
 from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -68,3 +70,103 @@ def company_graph(request):
         for r in relationships
     ]
     return Response({"nodes": nodes, "edges": edges})
+
+
+@api_view(["GET"])
+def graph_stats(request):
+    """Compact graph-health summary for the pipeline and explorer surfaces."""
+    companies = Company.objects.all()
+    relationships = Relationship.objects.all()
+    return Response({
+        "company_count": companies.count(),
+        "edge_count": relationships.count(),
+        "by_sector": dict(sorted(Counter(companies.values_list("sector", flat=True)).items())),
+        "by_relationship_type": dict(sorted(Counter(relationships.values_list("relationship_type", flat=True)).items())),
+    })
+
+
+@api_view(['GET'])
+def get_model_metrics(request):
+    import os
+    import json
+    from django.conf import settings
+    
+    MODEL_DIR = os.path.join(settings.BASE_DIR, "market", "data", "_model")
+    metrics_path = os.path.join(MODEL_DIR, "metrics.json")
+    
+    if not os.path.exists(metrics_path):
+        return Response({"error": "Model not trained yet"}, status=404)
+        
+    try:
+        with open(metrics_path, "r") as f:
+            data = json.load(f)
+        return Response(data)
+    except Exception as e:
+        return Response({"error": f"Failed to read metrics: {str(e)}"}, status=500)
+
+
+@api_view(['POST'])
+def verify_pipeline(request):
+    """
+    Runs lightweight checks to ensure the pipeline populated data correctly.
+    Returns a list of checks with passed/failed status.
+    """
+    from .models import Company, Relationship, NewsEvent, BacktestPattern, GeneratedChain
+    
+    checks = []
+    
+    # 1. Graph Data
+    company_count = Company.objects.count()
+    rel_count = Relationship.objects.count()
+    checks.append({
+        "id": "graph_seeded",
+        "name": "Graph database populated",
+        "passed": company_count > 0 and rel_count > 0,
+        "detail": f"{company_count} companies, {rel_count} relationships"
+    })
+    
+    # 2. Ingestion
+    event_count = NewsEvent.objects.count()
+    checks.append({
+        "id": "news_ingested",
+        "name": "News events ingested",
+        "passed": event_count > 0,
+        "detail": f"{event_count} events found"
+    })
+    
+    # 3. Backtest
+    pattern_count = BacktestPattern.objects.count()
+    checks.append({
+        "id": "patterns_found",
+        "name": "Backtest patterns generated",
+        "passed": pattern_count > 0,
+        "detail": f"{pattern_count} patterns identified"
+    })
+    
+    # 4. Model
+    import os
+    from django.conf import settings
+    MODEL_DIR = os.path.join(settings.BASE_DIR, "market", "data", "_model")
+    model_exists = os.path.exists(os.path.join(MODEL_DIR, "model.joblib"))
+    checks.append({
+        "id": "model_trained",
+        "name": "Confidence model trained",
+        "passed": model_exists,
+        "detail": "model.joblib exists on disk" if model_exists else "model.joblib missing"
+    })
+    
+    # 5. Chains
+    chain_count = GeneratedChain.objects.count()
+    checks.append({
+        "id": "chains_generated",
+        "name": "Causal chains generated",
+        "passed": chain_count > 0,
+        "detail": f"{chain_count} chains available"
+    })
+    
+    all_passed = all(c["passed"] for c in checks)
+    
+    return Response({
+        "all_passed": all_passed,
+        "checks": checks
+    })

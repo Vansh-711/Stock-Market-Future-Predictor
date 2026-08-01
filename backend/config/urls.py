@@ -21,4 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/market/', include('market.urls')),
     path('api/v1/auth/', include('accounts.urls')),
+    path('api/v1/settings/', include('accounts.settings_urls')),
+    path('api/v1/pipeline/', include('market.pipeline_urls')),
 ]

@@ -1,52 +1,55 @@
 {
-  "n_samples": 70,
+  "n_samples": 448,
   "classification_report": {
     "0": {
-      "precision": 0.5333333333333333,
-      "recall": 0.8888888888888888,
-      "f1-score": 0.6666666666666666,
-      "support": 9.0
+      "precision": 0.7857142857142857,
+      "recall": 0.9871794871794872,
+      "f1-score": 0.875,
+      "support": 78.0
     },
     "1": {
-      "precision": 0.6666666666666666,
-      "recall": 0.2222222222222222,
-      "f1-score": 0.3333333333333333,
-      "support": 9.0
+      "precision": 0.9285714285714286,
+      "recall": 0.38235294117647056,
+      "f1-score": 0.5416666666666666,
+      "support": 34.0
     },
-    "accuracy": 0.5555555555555556,
+    "accuracy": 0.8035714285714286,
     "macro avg": {
-      "precision": 0.6,
-      "recall": 0.5555555555555556,
-      "f1-score": 0.5,
-      "support": 18.0
+      "precision": 0.8571428571428572,
+      "recall": 0.6847662141779789,
+      "f1-score": 0.7083333333333333,
+      "support": 112.0
     },
     "weighted avg": {
-      "precision": 0.6000000000000001,
-      "recall": 0.5555555555555556,
-      "f1-score": 0.5,
-      "support": 18.0
+      "precision": 0.8290816326530612,
+      "recall": 0.8035714285714286,
+      "f1-score": 0.7738095238095237,
+      "support": 112.0
     }
   },
   "confusion_matrix": [
     [
-      8,
+      77,
       1
     ],
     [
-      7,
-      2
+      21,
+      13
     ]
   ],
   "feature_coefficients": {
-    "event_type_earnings_miss": 1.1919,
-    "event_type_guidance_cut": -0.5635,
-    "event_type_guidance_raise": -0.8791,
-    "event_type_product_launch": -0.2417,
-    "event_type_regulatory": 0.2914,
-    "relationship_type_peer": -1.015,
-    "relationship_type_supplier": -1.1901,
-    "sentiment_score": -0.8292,
-    "magnitude": -0.5289,
-    "sector_match": -0.8133
+    "event_type_earnings_miss": 1.0545,
+    "event_type_guidance_cut": 0.0,
+    "event_type_guidance_raise": -0.0894,
+    "event_type_lawsuit": 0.2726,
+    "event_type_other": -0.6519,
+    "event_type_product_launch": 0.4594,
+    "event_type_regulatory": 0.2875,
+    "relationship_type_customer": 1.0786,
+    "relationship_type_peer": -0.2022,
+    "relationship_type_supplier": -2.1849,
+    "sentiment_score": -0.2712,
+    "magnitude": -0.6726,
+    "sector_match": -1.3514
   }
 }

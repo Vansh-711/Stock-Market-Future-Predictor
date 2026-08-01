@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Menu, Network, X } from 'lucide-react';
+import { Menu, Network, SlidersHorizontal, X } from 'lucide-react';
 import { getCompanies } from '@/entities/company/api/companyApi';
 import type { Company } from '@/entities/company/model/types';
 import { SectorBadge } from '@/entities/company/ui/SectorBadge';
@@ -17,6 +17,7 @@ import { EmptyState } from '@/shared/ui/EmptyState';
 import { ErrorState } from '@/shared/ui/ErrorState';
 import { IconButton } from '@/shared/ui/IconButton';
 import { Input } from '@/shared/ui/Input';
+import { Select } from '@/shared/ui/Select';
 import { CardSkeleton, SkeletonBlock } from '@/shared/ui/Skeleton';
 import { cn } from '@/shared/lib/cn';
 
@@ -76,16 +77,29 @@ export function ExplorerPage() {
   const [query, setQuery] = useState('');
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [sector, setSector] = useState('all');
+  const [relationshipType, setRelationshipType] = useState('all');
 
   const companies = data?.companies ?? [];
   const relationships = data?.relationships ?? [];
   const graph = data?.graph ?? { nodes: [], edges: [] };
 
+  const sectors = useMemo(() => [...new Set(companies.map((company) => company.sector))].sort(), [companies]);
+  const relationshipTypes = useMemo(() => [...new Set(relationships.map((relationship) => relationship.relationship_type))].sort(), [relationships]);
   const filteredCompanies = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    if (!normalized) return companies;
-    return companies.filter((company) => `${company.symbol} ${company.name} ${company.sector}`.toLowerCase().includes(normalized));
-  }, [companies, query]);
+    return companies.filter((company) => (sector === 'all' || company.sector === sector) && (!normalized || `${company.symbol} ${company.name} ${company.sector}`.toLowerCase().includes(normalized)));
+  }, [companies, query, sector]);
+
+  const filteredGraph = useMemo(() => {
+    const visibleSymbols = new Set(filteredCompanies.map((company) => company.symbol));
+    return {
+      nodes: graph.nodes.filter((node) => visibleSymbols.has(node.id)),
+      edges: graph.edges.filter((edge) => visibleSymbols.has(edge.source) && visibleSymbols.has(edge.target) && (relationshipType === 'all' || edge.type === relationshipType)),
+    };
+  }, [filteredCompanies, graph, relationshipType]);
+
+  const relationshipCounts = useMemo(() => filteredGraph.edges.reduce<Record<string, number>>((counts, edge) => ({ ...counts, [edge.type]: (counts[edge.type] ?? 0) + 1 }), {}), [filteredGraph.edges]);
 
   const companiesBySymbol = useMemo(() => new Map(companies.map((company) => [company.symbol, company])), [companies]);
   const selectedCompany = selectedSymbol ? companiesBySymbol.get(selectedSymbol) ?? null : null;
@@ -102,12 +116,12 @@ export function ExplorerPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-display text-text-primary">Explorer</h1>
-        {!isDesktop && !isMobile && status === 'success' ? (
-          <Button variant="secondary" leftIcon={<Menu className="h-icon w-icon" aria-hidden="true" />} onClick={() => setIsDrawerOpen(true)}>
-            Browse companies
-          </Button>
-        ) : null}
+        <div><h1 className="text-display text-text-primary">Explorer</h1><p className="mt-1 text-body text-text-secondary">Filter the relationship surface before tracing a company’s dependencies.</p></div>
+        {status === 'success' ? <div className="flex flex-wrap items-end gap-3">
+          <Select label="Sector" name="explorer-header-sector" className="w-40" value={sector} onChange={(event) => setSector(event.target.value)}><option value="all">All sectors</option>{sectors.map((value) => <option key={value} value={value}>{value}</option>)}</Select>
+          <Select label="Relationship" name="explorer-relationship" className="w-40" value={relationshipType} onChange={(event) => setRelationshipType(event.target.value)}><option value="all">All types</option>{relationshipTypes.map((value) => <option key={value} value={value}>{value}</option>)}</Select>
+          {!isDesktop && !isMobile ? <Button variant="secondary" leftIcon={<Menu className="h-icon w-icon" aria-hidden="true" />} onClick={() => setIsDrawerOpen(true)}>Browse companies</Button> : null}
+        </div> : null}
       </div>
 
       {isLoading ? <ExplorerSkeleton /> : null}
@@ -139,10 +153,10 @@ export function ExplorerPage() {
         ) : (
           <div className="flex gap-6">
             {isDesktop ? (
-              <ExplorerSidebar companies={filteredCompanies} query={query} selectedSymbol={selectedSymbol} onQueryChange={setQuery} onSelect={handleSelectCompany} />
+              <ExplorerSidebar companies={filteredCompanies} query={query} selectedSymbol={selectedSymbol} onQueryChange={setQuery} onSelect={handleSelectCompany} sectors={sectors} sector={sector} onSectorChange={setSector} relationshipCounts={relationshipCounts} />
             ) : null}
             <main className="min-w-0 flex-1">
-              <RelationshipGraph data={graph} selectedSymbol={selectedSymbol} onSelectNode={handleSelectCompany} />
+              {filteredGraph.nodes.length ? <RelationshipGraph data={filteredGraph} selectedSymbol={selectedSymbol} onSelectNode={handleSelectCompany} /> : <EmptyState icon={<SlidersHorizontal className="h-8 w-8" aria-hidden="true" />} title="No graph matches this filter" description="Choose another sector or relationship type to restore nodes and connections." />}
             </main>
             {selectedCompany ? (
               <CompanyProfilePanel
@@ -166,7 +180,7 @@ export function ExplorerPage() {
                 <X className="h-icon w-icon" aria-hidden="true" />
               </IconButton>
             </div>
-            <ExplorerSidebar companies={filteredCompanies} query={query} selectedSymbol={selectedSymbol} onQueryChange={setQuery} onSelect={handleSelectCompany} />
+            <ExplorerSidebar companies={filteredCompanies} query={query} selectedSymbol={selectedSymbol} onQueryChange={setQuery} onSelect={handleSelectCompany} sectors={sectors} sector={sector} onSectorChange={setSector} relationshipCounts={relationshipCounts} />
           </div>
         </div>
       ) : null}

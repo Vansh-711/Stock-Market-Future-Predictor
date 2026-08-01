@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import base64
+import hashlib
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,6 +24,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-fva1%8)*k81wi(jrh18taa&iqahajr5!hs%z&y*^*3%(q^6t=b'
+
+# Supply FIELD_ENCRYPTION_KEY in production. The deterministic development
+# fallback keeps local settings readable between restarts, but production must
+# use a separately managed secret so Gemini keys are not tied to Django's key.
+FIELD_ENCRYPTION_KEY = os.environ.get(
+    "FIELD_ENCRYPTION_KEY",
+    base64.urlsafe_b64encode(hashlib.sha256(SECRET_KEY.encode()).digest()).decode(),
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
