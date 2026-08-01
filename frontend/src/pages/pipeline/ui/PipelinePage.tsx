@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Activity, Ban, Check, Circle, Database, FileUp, FlaskConical, GitBranch, Play, ScanSearch, Sparkles, XCircle } from 'lucide-react';
 import * as pipelineApi from '@/features/pipeline/api/pipelineApi';
 import type { PipelineJob } from '@/features/pipeline/api/pipelineApi';
-import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
+import { InteractiveHoverButton } from '@/shared/ui/interactive-hover-button';
 import { ErrorState } from '@/shared/ui/ErrorState';
 import { formatInteger } from '@/shared/lib/format';
 import { formatRelativeTime } from '@/shared/lib/time';
@@ -101,9 +101,7 @@ export function PipelinePage() {
           <p className="mt-2 max-w-2xl text-body text-text-secondary">A durable execution record for every dataset and analytical step—not a black-box run button.</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="secondary" onClick={() => start(['seed'])} isLoading={isStarting} disabled={Boolean(job && !terminalStates.has(job.status))}>
-            Sync graph only
-          </Button>
+          <InteractiveHoverButton onClick={() => start(['seed'])} disabled={Boolean(job && !terminalStates.has(job.status)) || isStarting} text={isStarting ? 'Starting...' : 'Sync graph only'} />
         </div>
       </header>
 
@@ -132,7 +130,7 @@ export function PipelinePage() {
         <Card className="p-0">
           <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border px-5 py-4">
             <div><div className="flex items-center gap-3"><h2 className="text-h3 text-text-primary">Run activity</h2><span className={`rounded-pill px-2.5 py-1 text-small-medium ${statusTone(job.status)}`}>{job.status}</span></div><p className="mt-1 text-small text-text-secondary">Run {job.job_id.slice(0, 8)} · started {formatRelativeTime(job.created_at)}</p></div>
-            {!terminalStates.has(job.status) ? <Button variant="danger" leftIcon={<Ban className="h-icon w-icon" />} onClick={cancel} isLoading={isCancelling}>Cancel</Button> : null}
+            {!terminalStates.has(job.status) ? <InteractiveHoverButton onClick={cancel} disabled={isCancelling} text={isCancelling ? 'Canceling...' : 'Cancel run'} /> : null}
           </div>
           <div className="p-5">
             <div className="flex items-baseline justify-between gap-4"><div><p className="text-body-medium text-text-primary">{job.current_step}</p><p className="mt-1 text-small text-text-secondary">{job.items_total ? `${formatInteger(job.items_done)} of ${formatInteger(job.items_total)} files scanned` : 'Preparing workload'}</p></div><span className="text-data-lg text-text-primary">{Math.round(job.progress_percent)}%</span></div>

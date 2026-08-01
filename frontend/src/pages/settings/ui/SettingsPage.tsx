@@ -3,10 +3,10 @@ import { Check, Eye, EyeOff, KeyRound, RotateCcw, ShieldCheck, SlidersHorizontal
 import * as settingsApi from '@/features/settings/api/settingsApi';
 import type { LlmSettings } from '@/features/settings/api/settingsApi';
 import { ApiError } from '@/shared/api/client';
-import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { ErrorState } from '@/shared/ui/ErrorState';
 import { Input } from '@/shared/ui/Input';
+import { InteractiveHoverButton } from '@/shared/ui/interactive-hover-button';
 import { Select } from '@/shared/ui/Select';
 import { SkeletonBlock } from '@/shared/ui/Skeleton';
 import { useToast } from '@/shared/ui/Toast';
@@ -126,7 +126,7 @@ export function SettingsPage() {
                   {showKey ? <EyeOff className="h-icon w-icon" /> : <Eye className="h-icon w-icon" />}
                 </button>
               </div>
-              <Button type="button" variant="secondary" leftIcon={<Wifi className="h-icon w-icon" />} onClick={testConnection} isLoading={isTesting} disabled={!saved.key_set && !apiKey.trim()}>Test connection</Button>
+              <InteractiveHoverButton type="button" onClick={testConnection} disabled={isTesting || (!saved.key_set && !apiKey.trim())} text={isTesting ? 'Testing...' : 'Test connection'} />
             </div>
             <div className="mt-4 flex gap-3 rounded-control border border-border bg-canvas px-3 py-3 text-small text-text-secondary">
               <ShieldCheck className="mt-0.5 h-icon w-icon shrink-0 text-positive" aria-hidden="true" />
@@ -162,7 +162,7 @@ export function SettingsPage() {
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
           <p className="text-small text-text-muted">Changes apply to future pipeline jobs only.</p>
-          <div className="flex gap-3"><Button type="button" variant="ghost" leftIcon={<RotateCcw className="h-icon w-icon" />} onClick={clearKey} disabled={!apiKey}>Discard key entry</Button><Button type="submit" variant="primary" isLoading={isSaving} leftIcon={<Check className="h-icon w-icon" />}>Save configuration</Button></div>
+          <div className="flex gap-3"><InteractiveHoverButton type="button" onClick={clearKey} disabled={!apiKey} text="Discard key entry" /><InteractiveHoverButton type="submit" disabled={isSaving} text={isSaving ? 'Saving...' : 'Save configuration'} /></div>
         </div>
       </form>
     </div>

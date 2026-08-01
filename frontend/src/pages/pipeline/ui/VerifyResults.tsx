@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Check, CheckCircle2, XCircle, Copy, TerminalSquare } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
-import { Button } from '@/shared/ui/Button';
+import { InteractiveHoverButton } from '@/shared/ui/interactive-hover-button';
 import { verifyPipeline, VerifyResult } from '@/features/pipeline/api/pipelineApi';
 import { API_BASE_URL } from '@/shared/config/env';
 
@@ -89,12 +89,7 @@ export function VerifyResults({ isCompleted }: { isCompleted: boolean }) {
                 <code className="bg-canvas border border-border rounded px-3 py-1.5 text-small font-data text-text-primary flex-1">
                   {API_BASE_URL}
                 </code>
-                <Button variant="secondary" onClick={copyUrl} className="shrink-0">
-                  <div className="flex items-center gap-2">
-                    {copied ? <CheckCircle2 className="w-4 h-4 text-positive" /> : <Copy className="w-4 h-4" />}
-                    {copied ? 'Copied' : 'Copy'}
-                  </div>
-                </Button>
+                <InteractiveHoverButton onClick={copyUrl} className="shrink-0" text={copied ? 'Copied!' : 'Copy URL'} />
               </div>
             </div>
           </div>

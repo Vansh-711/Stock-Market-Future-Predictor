@@ -63,3 +63,15 @@ This file tracks all modifications made during the minor tweaks phase, including
 - **Fixed Inner Macbook Screen Gradient Cutoff (`LoginPage.tsx`, `SignupPage.tsx`)**
   - **Change:** Moved the massive `pb-48` scroll padding out of the `macbook-scroll.tsx` wrapper and directly into the form wrapper, changing it from `h-full` to `min-h-full`.
   - **Reason:** When I added the ability to scroll deep into the small window, the gorgeous `from-canvas to-surface-raised` gradient was hardcoded to `h-full`. This meant the browser only painted the background for the initial visible height of the screen! When the user scrolled down into the padded area, the background simply stopped existing, abruptly cutting off and revealing the flat canvas color behind it. By stretching it with `min-h-full`, the gradient now scales dynamically across the entire scrollable region.
+
+- **Floating Navigation Bar (`Navbar.tsx`, `ProtectedLayout.tsx`)**
+  - **Change:** Replaced the static header with a dynamic, framer-motion powered floating pill navigation bar. 
+  - **Reason:** Designed an immersive top navigation UI with smooth hover and active states based on user-provided motion specs, elevating the core layout aesthetic.
+
+- **Interactive Hover Buttons (`SettingsPage`, `PipelinePage`, `InteractiveHoverButton`)**
+  - **Change:** Created a new `InteractiveHoverButton` component and replaced standard UI buttons throughout the internal application pages.
+  - **Reason:** Brings a sleek, animated, and modern micro-interaction to all major call-to-action endpoints (saving config, syncing graphs, file uploads) in the authenticated area.
+
+- **Refined Interactive Hover Button Details (`InteractiveHoverButton`)**
+  - **Change:** Changed animation duration from 300ms to 500ms, and hid the background seed div (`opacity-0 scale-0`) when unhovered.
+  - **Reason:** The original component had a slight UI bug where the background expansion anchor was visible as a tiny 2x2 blue dot behind the text before hover. Hiding it entirely until hover cleans up the resting state, and slowing down the transition makes the arrow slide-in feel much more deliberate and premium.

@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { UploadCloud, CheckCircle, AlertCircle, FileText } from 'lucide-react';
-import { Button } from '@/shared/ui/Button';
+import { InteractiveHoverButton } from '@/shared/ui/interactive-hover-button';
 import { Card } from '@/shared/ui/Card';
 import { uploadPipelineFile } from '@/features/pipeline/api/pipelineApi';
 import { useToast } from '@/shared/ui/Toast';
@@ -96,8 +96,8 @@ export function IngestUpload({ onUploadComplete }: { onUploadComplete: (data: { 
         )}
 
         <div className="p-5 bg-surface border-t border-border flex justify-end gap-3">
-          <Button variant="secondary" onClick={() => setPreviewData(null)}>Cancel</Button>
-          <Button variant="primary" onClick={confirmUpload}>Continue with this file</Button>
+          <InteractiveHoverButton onClick={() => setPreviewData(null)} text="Cancel" />
+          <InteractiveHoverButton onClick={confirmUpload} text="Continue with this file" />
         </div>
       </Card>
     );
@@ -119,14 +119,12 @@ export function IngestUpload({ onUploadComplete }: { onUploadComplete: (data: { 
         accept=".json,.jsonl,.csv"
       />
       
-      <Button 
-        variant="primary" 
+      <InteractiveHoverButton
         className="mt-6"
-        isLoading={isUploading}
+        disabled={isUploading}
         onClick={() => fileInputRef.current?.click()}
-      >
-        Select File
-      </Button>
+        text={isUploading ? 'Uploading...' : 'Select File'}
+      />
     </Card>
   );
 }

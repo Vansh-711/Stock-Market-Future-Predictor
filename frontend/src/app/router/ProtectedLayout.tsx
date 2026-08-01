@@ -25,7 +25,7 @@ export function ProtectedLayout() {
   return (
     <div className="min-h-screen bg-canvas">
       <Navbar />
-      <main className="mx-auto max-w-screen-2xl px-4 py-6 md:px-6 md:py-8">
+      <main className="mx-auto max-w-screen-2xl px-4 pt-28 pb-6 md:px-6 md:pt-32 md:pb-8">
         <Outlet />
       </main>
     </div>
