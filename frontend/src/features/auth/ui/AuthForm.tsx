@@ -12,7 +12,7 @@ type FormErrors = Partial<Record<'username' | 'email' | 'password' | 'confirmPas
 export function AuthForm({ mode }: { mode: AuthMode }) {
   const navigate = useNavigate();
   const auth = useAuth();
-  const [values, setValues] = useState({ username: '', email: '', password: '', confirmPassword: '' });
+  const [values, setValues] = useState({ username: '', email: '', password: '', confirmPassword: '', rememberMe: false });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,7 +47,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
       if (isSignup) {
         await auth.signup({ username: values.username.trim(), email: values.email.trim(), password: values.password });
       } else {
-        await auth.login({ username: values.username.trim(), password: values.password });
+        await auth.login({ username: values.username.trim(), password: values.password, remember_me: values.rememberMe });
       }
       navigate('/', { replace: true });
     } catch (error) {
@@ -89,6 +89,19 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
             error={errors.confirmPassword}
           />
         ) : null}
+        
+        {!isSignup ? (
+          <label className="flex items-center gap-2 mt-2 cursor-pointer text-small text-text-secondary w-fit">
+            <input 
+              type="checkbox" 
+              checked={values.rememberMe}
+              onChange={(e) => setValues(curr => ({ ...curr, rememberMe: e.target.checked }))}
+              className="rounded border-border bg-canvas text-accent focus:ring-accent w-4 h-4"
+            />
+            Keep me logged in
+          </label>
+        ) : null}
+
         {errors.form ? <p className="text-small text-negative">{errors.form}</p> : null}
         <Button type="submit" variant="primary" fullWidth isLoading={isSubmitting}>
           {isSignup ? 'Create account' : 'Log in'}

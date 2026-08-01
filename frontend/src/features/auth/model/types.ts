@@ -7,6 +7,7 @@ export type User = {
 export type LoginPayload = {
   username: string;
   password: string;
+  remember_me?: boolean;
 };
 
 export type SignupPayload = {
