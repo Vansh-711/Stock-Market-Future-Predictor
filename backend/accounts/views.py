@@ -36,6 +36,11 @@ def login_view(request):
     if user is None:
         return Response({"detail": "Incorrect username or password."}, status=401)
     login(request, user)
+    
+    # If the user doesn't check "remember_me", set the session to expire on browser close.
+    if not data.get("remember_me", False):
+        request.session.set_expiry(0)
+        
     return Response({"id": user.id, "username": user.username, "email": user.email})
 
 
