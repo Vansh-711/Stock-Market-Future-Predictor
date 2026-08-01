@@ -9,13 +9,17 @@
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
+    "@tabler/icons-react": "^3.46.0",
     "@vitejs/plugin-react": "latest",
+    "clsx": "^2.1.1",
     "lucide-react": "latest",
+    "motion": "^12.43.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-force-graph-2d": "latest",
     "react-router-dom": "^6.30.1",
-    "recharts": "latest"
+    "recharts": "latest",
+    "tailwind-merge": "^3.6.0"
   },
   "devDependencies": {
     "@types/node": "latest",

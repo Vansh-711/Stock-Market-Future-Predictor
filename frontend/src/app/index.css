@@ -5,6 +5,35 @@
 @tailwind utilities;
 
 :root {
+  color-scheme: light;
+  --canvas: #FAFAFC;
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --surface-hover: #F2F4F7;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  --text-primary: #1A1D24;
+  --text-secondary: #525C6F;
+  --text-muted: #838F9F;
+  --accent: #3B82F6;
+  --accent-hover: #2563EB;
+  --accent-muted: rgba(59, 130, 246, 0.12);
+  --positive: #10B981;
+  --positive-muted: rgba(16, 185, 129, 0.12);
+  --negative: #EF4444;
+  --negative-muted: rgba(239, 68, 68, 0.12);
+  --warning: #F59E0B;
+  --warning-muted: rgba(245, 158, 11, 0.12);
+
+  /* Hover effect colors optimized for Light Mode (deeper, more saturated for contrast) */
+  --hover-1: #b45309; /* amber-700 */
+  --hover-2: #b91c1c; /* red-700 */
+  --hover-3: #1d4ed8; /* blue-700 */
+  --hover-4: #0e7490; /* cyan-700 */
+  --hover-5: #6d28d9; /* purple-700 */
+}
+
+.dark {
   color-scheme: dark;
   --canvas: #0B0D12;
   --surface: #12151C;
@@ -24,6 +53,13 @@
   --negative-muted: rgba(224,100,92,0.14);
   --warning: #E0A23D;
   --warning-muted: rgba(224,162,61,0.14);
+
+  /* Hover effect colors optimized for Dark Mode (bright, neon, glowing) */
+  --hover-1: #eab308; /* yellow-500 */
+  --hover-2: #ef4444; /* red-500 */
+  --hover-3: #3b82f6; /* blue-500 */
+  --hover-4: #06b6d4; /* cyan-500 */
+  --hover-5: #8b5cf6; /* purple-500 */
 }
 
 * {
@@ -209,4 +245,14 @@ select:disabled {
     background-image: linear-gradient(90deg, var(--surface) 0%, var(--surface-raised) 50%, var(--surface) 100%);
     background-size: 200% 100%;
   }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+ 
+html[data-magicui-theme-vt="active"]::view-transition-group(root) {
+  animation-duration: var(--magicui-theme-toggle-vt-duration);
 }

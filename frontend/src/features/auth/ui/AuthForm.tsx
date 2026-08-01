@@ -3,13 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/shared/ui/Button';
 import { Card } from '@/shared/ui/Card';
 import { Input } from '@/shared/ui/Input';
+import { cn } from '@/shared/lib/cn';
 import { useAuth } from '@/features/auth/model/AuthContext';
 
 type AuthMode = 'login' | 'signup';
 
 type FormErrors = Partial<Record<'username' | 'email' | 'password' | 'confirmPassword' | 'form', string>>;
 
-export function AuthForm({ mode }: { mode: AuthMode }) {
+export function AuthForm({ mode, className, hideHeader }: { mode: AuthMode; className?: string; hideHeader?: boolean }) {
   const navigate = useNavigate();
   const auth = useAuth();
   const [values, setValues] = useState({ username: '', email: '', password: '', confirmPassword: '', rememberMe: false });
@@ -58,11 +59,13 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
   };
 
   return (
-    <Card className="w-full max-w-auth">
-      <div className="mb-6">
-        <div className="text-h2 text-text-primary">Signal Chain</div>
-        <h1 className="mt-4 text-h2 text-text-primary">{isSignup ? 'Create account' : 'Log in'}</h1>
-      </div>
+    <Card className={cn("w-full max-w-auth transition-all duration-300", className)}>
+      {!hideHeader && (
+        <div className="mb-8">
+          <div className="text-h3 text-text-secondary font-medium tracking-wide uppercase text-center">Signal Chain</div>
+          <h1 className="mt-2 text-h1 font-bold text-text-primary text-center">{isSignup ? 'Create account' : 'Welcome back'}</h1>
+        </div>
+      )}
 
       <form className="space-y-4" onSubmit={handleSubmit} noValidate>
         <Input label="Username" name="username" autoComplete="username" value={values.username} onChange={updateValue('username')} error={errors.username} />
