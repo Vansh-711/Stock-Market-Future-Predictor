@@ -17,6 +17,7 @@ import { TrainResults } from './TrainResults';
 import { ChainsResults } from './ChainsResults';
 import { VerifyResults } from './VerifyResults';
 import { IngestLiveFeed } from './IngestLiveFeed';
+import { ResetDataModal } from '@/shared/ui/ResetDataModal';
 
 const stages = [
   { id: 'seed', short: 'A', title: 'Graph Sync', detail: 'Map companies & supply-chain relationships', longDetail: 'Synchronizes your company universe and their supplier, customer, competitor, and peer relationships into a knowledge graph.', icon: Database, available: true },
@@ -53,6 +54,7 @@ export function PipelinePage() {
   const [isStarting, setIsStarting] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const graphStatsLoader = useCallback(() => getGraphStats(), []);
   const graphHealth = useRemoteData(graphStatsLoader, []);
@@ -139,6 +141,7 @@ export function PipelinePage() {
 
   const handleClearData = async () => {
     setIsClearing(true);
+    setIsResetModalOpen(false);
     try {
       await pipelineApi.clearPipelineData();
       setJob(null);
@@ -165,13 +168,20 @@ export function PipelinePage() {
         <div className="flex gap-3">
           <InteractiveHoverButton 
             className="border-negative text-negative hover:bg-negative hover:text-white"
-            onClick={handleClearData} 
-            disabled={isClearing || isStarting || isCancelling} 
-            text={isClearing ? 'Clearing...' : 'Reset all data'} 
+            onClick={() => setIsResetModalOpen(true)} 
+            disabled={isStarting || isCancelling} 
+            text="Reset all data" 
           />
           <InteractiveHoverButton onClick={() => start(['seed'])} disabled={Boolean(job && !terminalStates.has(job.status)) || isStarting} text={isStarting ? 'Starting...' : 'Sync graph only'} />
         </div>
       </header>
+      
+      <ResetDataModal 
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        onConfirm={handleClearData}
+        isClearing={isClearing}
+      />
 
       <Card className="p-0 overflow-hidden">
         <div className="border-b border-border px-5 py-4">

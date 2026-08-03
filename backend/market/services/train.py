@@ -70,7 +70,7 @@ def run_train(job_id):
 
         update_job(job, progress_percent=70)
         
-        model = LogisticRegression(max_iter=1000)
+        model = LogisticRegression(max_iter=1000, class_weight='balanced')
         model.fit(X_train, y_train)
         preds = model.predict(X_test)
 
