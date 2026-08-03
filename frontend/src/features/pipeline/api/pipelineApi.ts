@@ -68,3 +68,6 @@ export type VerifyResult = {
 export const verifyPipeline = () => apiFetch<VerifyResult>('/market/verify/', { method: 'POST' });
 
 export const clearPipelineData = () => apiFetch<{status: string, message: string}>('/market/clear/', { method: 'POST' });
+
+export const getChainEvidence = (chainId: number) => 
+  apiFetch<any>(`/market/chains/${chainId}/evidence/`);

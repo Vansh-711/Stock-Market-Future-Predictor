@@ -10,16 +10,18 @@ type ChainCardProps = {
   compact?: boolean;
   expanded?: boolean;
   className?: string;
+  children?: React.ReactNode;
+  onClick?: () => void;
 };
 
 const hasPattern = (chain: GeneratedChain | EnrichedChain): chain is EnrichedChain => 'pattern' in chain;
 
-export function ChainCard({ chain, compact = false, expanded = false, className }: ChainCardProps) {
+export function ChainCard({ chain, compact = false, expanded = false, className, children, onClick }: ChainCardProps) {
   const sampleSize = hasPattern(chain) ? chain.pattern?.sample_size : undefined;
   const href = `/chains/${chain.id}`;
 
   return (
-    <Card className={cn('transition-colors duration-ui ease-out hover:bg-surface-hover', className)}>
+    <Card onClick={onClick} className={cn('transition-colors duration-ui ease-out hover:bg-surface-hover', onClick ? 'cursor-pointer' : '', className)}>
       <div className="flex gap-4">
         <div className="flex shrink-0 flex-col items-center gap-2">
           <CompanyBadge symbol={chain.trigger_symbol} to={`/companies/${chain.trigger_symbol}`} />
@@ -34,7 +36,7 @@ export function ChainCard({ chain, compact = false, expanded = false, className 
           <div className="flex items-start justify-between gap-4">
             <p className={cn('text-body-medium text-text-primary', expanded ? '' : 'line-clamp-1')}>{chain.trigger_headline}</p>
             {!expanded ? (
-              <Link className="hidden shrink-0 text-small text-accent transition-colors duration-ui ease-out hover:text-accent-hover sm:inline" to={href}>
+              <Link className="hidden shrink-0 text-small text-accent transition-colors duration-ui ease-out hover:text-accent-hover sm:inline" to={href} onClick={(e) => e.stopPropagation()}>
                 Read more
               </Link>
             ) : null}
@@ -47,8 +49,11 @@ export function ChainCard({ chain, compact = false, expanded = false, className 
           </div>
 
           <p className={cn('mt-4 text-body text-text-secondary', expanded ? '' : compact ? 'line-clamp-2' : 'line-clamp-3')}>{chain.explanation}</p>
+          
+          {children}
+
           {!expanded ? (
-            <Link className="mt-3 inline-flex text-small text-accent transition-colors duration-ui ease-out hover:text-accent-hover sm:hidden" to={href}>
+            <Link className="mt-3 inline-flex text-small text-accent transition-colors duration-ui ease-out hover:text-accent-hover sm:hidden" to={href} onClick={(e) => e.stopPropagation()}>
               Read more
             </Link>
           ) : null}

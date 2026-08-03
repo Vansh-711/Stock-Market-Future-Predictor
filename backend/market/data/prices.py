@@ -33,7 +33,8 @@ def _load_history(symbol):
         df = _normalize_index(df)
     else:
         import yfinance as yf
-        df = yf.Ticker(symbol).history(period="2y")
+        # Use 5y instead of 2y to ensure we cover historical dataset events
+        df = yf.Ticker(symbol).history(period="5y")
         if df.empty:
             df = pd.DataFrame()
         else:
@@ -61,7 +62,14 @@ def get_price_change(symbol, from_date, window_days):
     on_or_after = df.index[df.index >= target_date]
     if len(on_or_after) == 0:
         return None
-    start_idx = df.index.get_loc(on_or_after[0])
+        
+    actual_start_date = on_or_after[0]
+    # CRITICAL FIX: If the closest available trading day is more than 7 days after the event, 
+    # it means we don't actually have data for this event date. Reject it.
+    if (actual_start_date - target_date).days > 7:
+        return None
+        
+    start_idx = df.index.get_loc(actual_start_date)
     if isinstance(start_idx, slice):
         start_idx = start_idx.start
 

@@ -1,49 +1,52 @@
 {
-  "n_samples": 52,
+  "n_samples": 560,
   "classification_report": {
     "0": {
-      "precision": 0.75,
-      "recall": 1.0,
-      "f1-score": 0.8571428571428571,
-      "support": 9.0
+      "precision": 0.8034188034188035,
+      "recall": 0.9215686274509803,
+      "f1-score": 0.8584474885844748,
+      "support": 102.0
     },
     "1": {
-      "precision": 1.0,
-      "recall": 0.25,
-      "f1-score": 0.4,
-      "support": 4.0
+      "precision": 0.6521739130434783,
+      "recall": 0.39473684210526316,
+      "f1-score": 0.4918032786885246,
+      "support": 38.0
     },
-    "accuracy": 0.7692307692307693,
+    "accuracy": 0.7785714285714286,
     "macro avg": {
-      "precision": 0.875,
-      "recall": 0.625,
-      "f1-score": 0.6285714285714286,
-      "support": 13.0
+      "precision": 0.7277963582311409,
+      "recall": 0.6581527347781218,
+      "f1-score": 0.6751253836364997,
+      "support": 140.0
     },
     "weighted avg": {
-      "precision": 0.8269230769230769,
-      "recall": 0.7692307692307693,
-      "f1-score": 0.7164835164835164,
-      "support": 13.0
+      "precision": 0.7623666188883581,
+      "recall": 0.7785714285714286,
+      "f1-score": 0.7589297744698598,
+      "support": 140.0
     }
   },
   "confusion_matrix": [
     [
-      9,
-      0
+      94,
+      8
     ],
     [
-      3,
-      1
+      23,
+      15
     ]
   ],
   "feature_coefficients": {
-    "event_type_other": 0.332,
-    "relationship_type_customer": 0.5232,
-    "relationship_type_peer": 0.7026,
-    "relationship_type_supplier": -1.6727,
-    "sentiment_score": -0.4658,
-    "magnitude": -0.1227,
-    "sector_match": -0.437
+    "event_type_guidance_cut": -0.223,
+    "event_type_other": 0.2283,
+    "event_type_product_launch": 0.3065,
+    "event_type_supply_disruption": -0.2415,
+    "relationship_type_customer": 0.7653,
+    "relationship_type_peer": 0.0797,
+    "relationship_type_supplier": -3.3872,
+    "sentiment_score": 0.0908,
+    "magnitude": 0.1069,
+    "sector_match": -1.2742
   }
 }

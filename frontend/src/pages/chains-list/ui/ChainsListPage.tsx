@@ -1,9 +1,9 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Network } from 'lucide-react';
 import { getChains } from '@/entities/chain/api/chainApi';
 import { enrichChains } from '@/entities/chain/model/enrich';
-import type { EnrichedChain } from '@/entities/chain/model/types';
 import { ChainCard } from '@/entities/chain/ui/ChainCard';
+import { ChainEvidenceGraph } from '@/entities/chain/ui/ChainEvidenceGraph';
 import { getCompanies } from '@/entities/company/api/companyApi';
 import { getEvents } from '@/entities/event/api/eventApi';
 import { getPatterns } from '@/entities/pattern/api/patternApi';
@@ -12,7 +12,7 @@ import { EmptyState } from '@/shared/ui/EmptyState';
 import { ErrorState } from '@/shared/ui/ErrorState';
 import { ChainCardSkeleton } from '@/shared/ui/Skeleton';
 
-async function loadChains(): Promise<EnrichedChain[]> {
+async function loadChains() {
   const [companies, patterns] = await Promise.all([getCompanies(''), getPatterns()]);
   const [chains, events] = await Promise.all([
     getChains(),
@@ -24,6 +24,7 @@ async function loadChains(): Promise<EnrichedChain[]> {
 export function ChainsListPage() {
   const loader = useCallback(() => loadChains(), []);
   const { data, error, isLoading, status, refetch } = useRemoteData(loader, []);
+  const [expandedChainId, setExpandedChainId] = useState<number | null>(null);
 
   return (
     <div className="space-y-6">
@@ -49,7 +50,15 @@ export function ChainsListPage() {
         ) : (
           <div className="space-y-4">
             {data.map((chain) => (
-              <ChainCard key={chain.id} chain={chain} />
+              <div key={chain.id} className="bg-canvas border-b border-border last:border-0 relative">
+                <ChainCard 
+                  chain={chain} 
+                  onClick={() => setExpandedChainId(expandedChainId === chain.id ? null : chain.id)} 
+                  expanded={expandedChainId === chain.id}
+                >
+                  {expandedChainId === chain.id && <ChainEvidenceGraph chainId={chain.id} windowDays={chain.pattern?.window_days} />}
+                </ChainCard>
+              </div>
             ))}
           </div>
         )

@@ -1,22 +1,20 @@
 import { BarChart3 } from 'lucide-react';
 import type { EnrichedChain } from '@/entities/chain/model/types';
 import { ChainCard } from '@/entities/chain/ui/ChainCard';
+import { ChainEvidenceGraph } from '@/entities/chain/ui/ChainEvidenceGraph';
 import { DirectionBadge } from '@/shared/ui/Badge';
 import { Card } from '@/shared/ui/Card';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { formatEventType, formatPercent, formatRelationshipType, formatSignedPercent } from '@/shared/lib/format';
-import { buildPostEventSeries } from '@/shared/lib/priceSeries';
-import { PriceChart } from '@/widgets/price-chart/ui/PriceChart';
 
 export function ChainDetailView({ chain }: { chain: EnrichedChain }) {
-  const chartData = buildPostEventSeries(chain.affected_symbol, chain.predicted_direction, chain.created_at, chain.model_confidence);
-  const tone = chain.predicted_direction === 'down' ? 'negative' : 'positive';
-
   return (
     <div className="space-y-6">
       <ChainCard chain={chain} expanded />
 
-      <PriceChart data={chartData} label={`${chain.affected_symbol} price after trigger event`} tone={tone} height={220} />
+      <Card className="p-5">
+        <ChainEvidenceGraph chainId={chain.id} windowDays={chain.pattern?.window_days} />
+      </Card>
 
       <Card title="How reliable is this pattern">
         {chain.pattern ? (

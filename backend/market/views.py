@@ -1,7 +1,7 @@
 from collections import Counter
 
 from rest_framework import viewsets, filters
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.decorators import api_view, authentication_classes, permission_classes, action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -61,6 +61,32 @@ class GeneratedChainViewSet(viewsets.ReadOnlyModelViewSet):
         if symbol:
             qs = qs.filter(trigger_event__company__symbol=symbol.upper())
         return qs
+
+    @action(detail=True, methods=['get'])
+    def evidence(self, request, pk=None):
+        chain = self.get_object()
+        from market.data.prices import _load_history
+        affected_symbol = chain.affected_company.symbol
+        try:
+            df = _load_history(affected_symbol)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+            
+        chart_data = []
+        if not df.empty:
+            for date, row in df.iterrows():
+                chart_data.append({
+                    "date": date.strftime("%Y-%m-%d"),
+                    "price": round(row["Close"], 2)
+                })
+                
+        return Response({
+            "chart_data": chart_data,
+            "event_date": chain.trigger_event.published_at.strftime("%Y-%m-%d"),
+            "trigger_symbol": chain.trigger_event.company.symbol,
+            "affected_symbol": affected_symbol,
+            "direction": chain.predicted_direction
+        })
 
 
 @api_view(["GET"])
