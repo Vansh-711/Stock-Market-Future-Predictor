@@ -73,5 +73,13 @@ This file tracks all modifications made during the minor tweaks phase, including
   - **Reason:** Brings a sleek, animated, and modern micro-interaction to all major call-to-action endpoints (saving config, syncing graphs, file uploads) in the authenticated area.
 
 - **Refined Interactive Hover Button Details (`InteractiveHoverButton`)**
-  - **Change:** Changed animation duration from 300ms to 500ms, and hid the background seed div (`opacity-0 scale-0`) when unhovered.
+  - **Change:** Changed animation duration from 300ms to 650ms, and hid the background seed div (`opacity-0 scale-0`) when unhovered.
   - **Reason:** The original component had a slight UI bug where the background expansion anchor was visible as a tiny 2x2 blue dot behind the text before hover. Hiding it entirely until hover cleans up the resting state, and slowing down the transition makes the arrow slide-in feel much more deliberate and premium.
+
+- **Fixed Massive N+1 Network Request Spam (`DashboardPage.tsx`, `ChainsListPage.tsx`)**
+  - **Change:** Replaced the `Promise.all(symbols.map(getChainsBySymbol))` logic with a single bulk fetch `getChains()` which queries the backend for all available data simultaneously.
+  - **Reason:** Previously, the Dashboard and Chains pages were attempting to fetch chain and event data for every single mapped company one-by-one. When the database expanded to hundreds of companies, this triggered thousands of simultaneous `OPTIONS` and `GET` requests, flooding the terminal, lagging the browser, and essentially performing a self-DDoS on the Django backend. The new bulk fetch fixes this completely.
+
+- **Implemented Multi-Tenant Data Isolation (Backend)**
+  - **Change:** Added a `user` ForeignKey to `Company`, `NewsEvent`, `BacktestPattern`, and `GeneratedChain`. Refactored `views.py` and the pipeline ingestion/backtest/train scripts to firmly scope all read/writes to `request.user` or `job.user`.
+  - **Reason:** Ensures that new accounts start with completely empty dashboards. When a user runs a pipeline (e.g., 200 headlines vs 400), they now own their data uniquely. The data doesn't leak or mash together into a globally shared graph anymore.

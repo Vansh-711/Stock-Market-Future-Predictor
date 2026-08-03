@@ -222,7 +222,7 @@ def run_ingest(job_id, file_path, adapter_id):
         job.options_json = options
         job.save(update_fields=["options_json"])
         
-        known_companies = {c.symbol: c for c in Company.objects.all()}
+        known_companies = {c.symbol: c for c in Company.objects.filter(user=job.user)}
         matched, created, failed, skipped_soft = 0, 0, 0, 0
         gemini_calls = 0
         
@@ -319,6 +319,7 @@ def run_ingest(job_id, file_path, adapter_id):
                 try:
                     pub_name = (article.get("publisher") or {}).get("name", "") if isinstance(article.get("publisher"), dict) else ""
                     NewsEvent.objects.create(
+                        user=job.user,
                         company=known_companies[ticker],
                         headline=title[:500],
                         event_type=event_type,

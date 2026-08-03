@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
 import { Network } from 'lucide-react';
-import { getChainsBySymbol } from '@/entities/chain/api/chainApi';
-import { dedupeChains, dedupeEvents, enrichChains } from '@/entities/chain/model/enrich';
+import { getChains } from '@/entities/chain/api/chainApi';
+import { enrichChains } from '@/entities/chain/model/enrich';
 import type { EnrichedChain } from '@/entities/chain/model/types';
 import { ChainCard } from '@/entities/chain/ui/ChainCard';
 import { getCompanies } from '@/entities/company/api/companyApi';
-import { getEventsBySymbol } from '@/entities/event/api/eventApi';
+import { getEvents } from '@/entities/event/api/eventApi';
 import { getPatterns } from '@/entities/pattern/api/patternApi';
 import { useRemoteData } from '@/shared/hooks/useRemoteData';
 import { EmptyState } from '@/shared/ui/EmptyState';
@@ -14,12 +14,11 @@ import { ChainCardSkeleton } from '@/shared/ui/Skeleton';
 
 async function loadChains(): Promise<EnrichedChain[]> {
   const [companies, patterns] = await Promise.all([getCompanies(''), getPatterns()]);
-  const symbols = companies.map((company) => company.symbol);
-  const [chainResults, eventResults] = await Promise.all([
-    Promise.all(symbols.map((symbol) => getChainsBySymbol(symbol))),
-    Promise.all(symbols.map((symbol) => getEventsBySymbol(symbol))),
+  const [chains, events] = await Promise.all([
+    getChains(),
+    getEvents(),
   ]);
-  return enrichChains(dedupeChains(chainResults.flat()), dedupeEvents(eventResults.flat()), patterns);
+  return enrichChains(chains, events, patterns);
 }
 
 export function ChainsListPage() {

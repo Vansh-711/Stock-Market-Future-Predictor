@@ -26,7 +26,7 @@ def run_backtest(job_id):
         update_job(job, status="running", current_step="Gathering events and relationships", progress_percent=10)
         
         stats = defaultdict(lambda: {"hits": 0, "total": 0, "moves": []})
-        events = NewsEvent.objects.select_related("company").all()
+        events = NewsEvent.objects.filter(user=job.user).select_related("company")
         total_events = events.count()
         
         update_job(job, items_total=total_events, items_done=0, current_step="Fetching historical prices")
@@ -42,7 +42,7 @@ def run_backtest(job_id):
                 pct = 10 + (idx / max(total_events, 1) * 80)
                 update_job(job, items_done=idx, progress_percent=pct)
 
-            related = Relationship.objects.filter(company=event.company).select_related("related_company")
+            related = Relationship.objects.filter(company=event.company, company__user=job.user).select_related("related_company")
             for rel in related:
                 key_lookup = (event.event_type, rel.relationship_type)
                 expected = EXPECTED_DIRECTION.get(key_lookup)
@@ -71,6 +71,7 @@ def run_backtest(job_id):
             hit_rate = s["hits"] / s["total"]
             avg_move = sum(s["moves"]) / len(s["moves"])
             BacktestPattern.objects.update_or_create(
+                user=job.user,
                 trigger_event_type=event_type,
                 relationship_type=rel_type,
                 window_days=window,

@@ -3,8 +3,8 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-router.register(r"companies", views.CompanyViewSet)
-router.register(r"relationships", views.RelationshipViewSet)
+router.register(r"companies", views.CompanyViewSet, basename="company")
+router.register(r"relationships", views.RelationshipViewSet, basename="relationship")
 router.register(r"events", views.NewsEventViewSet, basename="event")
 router.register(r"patterns", views.BacktestPatternViewSet, basename="pattern")
 router.register(r"chains", views.GeneratedChainViewSet, basename="chain")

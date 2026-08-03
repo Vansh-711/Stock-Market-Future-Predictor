@@ -7,7 +7,7 @@ from market.models import Company, Relationship
 SEED_PATH = Path(__file__).resolve().parent.parent / "seed_data" / "companies.json"
 
 
-def seed_graph():
+def seed_graph(user=None):
     """Idempotently load the relationship graph and return a useful summary."""
     with SEED_PATH.open() as seed_file:
         data = json.load(seed_file)
@@ -15,6 +15,7 @@ def seed_graph():
     created_companies = 0
     for company_data in data["companies"]:
         _, created = Company.objects.update_or_create(
+            user=user,
             symbol=company_data["symbol"],
             defaults={
                 "name": company_data["name"],
@@ -28,8 +29,8 @@ def seed_graph():
     skipped_relationships = 0
     for relationship_data in data["relationships"]:
         try:
-            company = Company.objects.get(symbol=relationship_data["company"])
-            related_company = Company.objects.get(symbol=relationship_data["related_company"])
+            company = Company.objects.get(user=user, symbol=relationship_data["company"])
+            related_company = Company.objects.get(user=user, symbol=relationship_data["related_company"])
         except Company.DoesNotExist:
             skipped_relationships += 1
             continue

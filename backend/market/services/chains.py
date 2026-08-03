@@ -145,7 +145,8 @@ def run_chains(job_id):
         prefer_patterns = bool(job.options_json.get("chains_prefer_patterns", True))
 
         events = (
-            NewsEvent.objects.exclude(event_type="other")
+            NewsEvent.objects.filter(user=job.user)
+            .exclude(event_type="other")
             .select_related("company")
             .order_by("-published_at")
         )
@@ -161,7 +162,8 @@ def run_chains(job_id):
                 break
 
             relationships = Relationship.objects.filter(
-                company=event.company
+                company=event.company,
+                company__user=job.user
             ).select_related("related_company")
 
             for rel in relationships:
@@ -174,6 +176,7 @@ def run_chains(job_id):
                     continue
 
                 pattern = BacktestPattern.objects.filter(
+                    user=job.user,
                     trigger_event_type=event.event_type,
                     relationship_type=rel.relationship_type,
                     window_days=window,
@@ -181,6 +184,7 @@ def run_chains(job_id):
                 if pattern is None:
                     pattern = (
                         BacktestPattern.objects.filter(
+                            user=job.user,
                             trigger_event_type=event.event_type,
                             relationship_type=rel.relationship_type,
                         )
@@ -196,6 +200,7 @@ def run_chains(job_id):
                 hit_rate = pattern.hit_rate if pattern else None
 
                 if GeneratedChain.objects.filter(
+                    user=job.user,
                     trigger_event=event,
                     affected_company=rel.related_company,
                     relationship_type=rel.relationship_type,
@@ -235,6 +240,7 @@ def run_chains(job_id):
                     )
 
                 GeneratedChain.objects.create(
+                    user=job.user,
                     trigger_event=event,
                     affected_company=rel.related_company,
                     relationship_type=rel.relationship_type,

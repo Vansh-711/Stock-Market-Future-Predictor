@@ -45,7 +45,7 @@ def run_job(job_id):
                 return
 
             update_job(job, current_step="Synchronizing companies and relationships", progress_percent=35)
-            summary = seed_graph()
+            summary = seed_graph(user=job.user)
             if _cancel_if_requested(job):
                 return
 

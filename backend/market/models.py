@@ -4,10 +4,14 @@ import uuid
 
 
 class Company(models.Model):
-    symbol = models.CharField(max_length=10, unique=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="companies", null=True)
+    symbol = models.CharField(max_length=10)
     name = models.CharField(max_length=200)
     sector = models.CharField(max_length=100)
     description = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ("user", "symbol")
 
     def __str__(self):
         return self.symbol
@@ -44,6 +48,7 @@ class NewsEvent(models.Model):
         ("lawsuit", "Lawsuit"),
         ("other", "Other"),
     ]
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="news_events", null=True)
     company = models.ForeignKey(Company, related_name="events", on_delete=models.CASCADE)
     headline = models.CharField(max_length=500)
     event_type = models.CharField(max_length=30, choices=EVENT_TYPES)
@@ -61,6 +66,7 @@ class NewsEvent(models.Model):
 
 class BacktestPattern(models.Model):
     """Aggregate historical stats for a (trigger event type, relationship type, direction) combo."""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="backtest_patterns", null=True)
     trigger_event_type = models.CharField(max_length=30)
     relationship_type = models.CharField(max_length=20)
     window_days = models.IntegerField()
@@ -71,13 +77,14 @@ class BacktestPattern(models.Model):
     computed_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ("trigger_event_type", "relationship_type", "window_days")
+        unique_together = ("user", "trigger_event_type", "relationship_type", "window_days")
 
     def __str__(self):
         return f"{self.trigger_event_type} x {self.relationship_type} ({self.window_days}d): {self.hit_rate:.0%}"
 
 
 class GeneratedChain(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="generated_chains_list", null=True)
     trigger_event = models.ForeignKey(NewsEvent, related_name="generated_chains", on_delete=models.CASCADE)
     affected_company = models.ForeignKey(Company, related_name="affected_by_chains", on_delete=models.CASCADE)
     relationship_type = models.CharField(max_length=20)

@@ -13,23 +13,26 @@ from .serializers import (
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
-    queryset = Company.objects.all().order_by("symbol")
     serializer_class = CompanySerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["symbol", "name", "sector"]
 
+    def get_queryset(self):
+        return Company.objects.filter(user=self.request.user).order_by("symbol")
+
 
 class RelationshipViewSet(viewsets.ModelViewSet):
-    queryset = Relationship.objects.select_related("company", "related_company").all()
     serializer_class = RelationshipSerializer
+
+    def get_queryset(self):
+        return Relationship.objects.select_related("company", "related_company").filter(company__user=self.request.user)
 
 
 class NewsEventViewSet(viewsets.ModelViewSet):
-    queryset = NewsEvent.objects.select_related("company").order_by("-published_at")
     serializer_class = NewsEventSerializer
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs = NewsEvent.objects.select_related("company").filter(user=self.request.user).order_by("-published_at")
         symbol = self.request.query_params.get("symbol")
         if symbol:
             qs = qs.filter(company__symbol=symbol.upper())
@@ -37,18 +40,19 @@ class NewsEventViewSet(viewsets.ModelViewSet):
 
 
 class BacktestPatternViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = BacktestPattern.objects.order_by("-hit_rate")
     serializer_class = BacktestPatternSerializer
+
+    def get_queryset(self):
+        return BacktestPattern.objects.filter(user=self.request.user).order_by("-hit_rate")
 
 
 class GeneratedChainViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = GeneratedChain.objects.select_related(
-        "trigger_event", "trigger_event__company", "affected_company"
-    ).order_by("-created_at")
     serializer_class = GeneratedChainSerializer
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs = GeneratedChain.objects.select_related(
+            "trigger_event", "trigger_event__company", "affected_company"
+        ).filter(user=self.request.user).order_by("-created_at")
         symbol = self.request.query_params.get("symbol")
         if symbol:
             qs = qs.filter(trigger_event__company__symbol=symbol.upper())
@@ -58,8 +62,8 @@ class GeneratedChainViewSet(viewsets.ReadOnlyModelViewSet):
 @api_view(["GET"])
 def company_graph(request):
     """Returns nodes + edges for the relationship graph view."""
-    companies = Company.objects.all()
-    relationships = Relationship.objects.select_related("company", "related_company").all()
+    companies = Company.objects.filter(user=request.user)
+    relationships = Relationship.objects.select_related("company", "related_company").filter(company__user=request.user)
     nodes = [{"id": c.symbol, "name": c.name, "sector": c.sector} for c in companies]
     edges = [
         {
@@ -75,8 +79,8 @@ def company_graph(request):
 @api_view(["GET"])
 def graph_stats(request):
     """Compact graph-health summary for the pipeline and explorer surfaces."""
-    companies = Company.objects.all()
-    relationships = Relationship.objects.all()
+    companies = Company.objects.filter(user=request.user)
+    relationships = Relationship.objects.filter(company__user=request.user)
     return Response({
         "company_count": companies.count(),
         "edge_count": relationships.count(),
@@ -116,8 +120,8 @@ def verify_pipeline(request):
     checks = []
     
     # 1. Graph Data
-    company_count = Company.objects.count()
-    rel_count = Relationship.objects.count()
+    company_count = Company.objects.filter(user=request.user).count()
+    rel_count = Relationship.objects.filter(company__user=request.user).count()
     checks.append({
         "id": "graph_seeded",
         "name": "Graph database populated",
@@ -126,7 +130,7 @@ def verify_pipeline(request):
     })
     
     # 2. Ingestion
-    event_count = NewsEvent.objects.count()
+    event_count = NewsEvent.objects.filter(user=request.user).count()
     checks.append({
         "id": "news_ingested",
         "name": "News events ingested",
@@ -135,7 +139,7 @@ def verify_pipeline(request):
     })
     
     # 3. Backtest
-    pattern_count = BacktestPattern.objects.count()
+    pattern_count = BacktestPattern.objects.filter(user=request.user).count()
     checks.append({
         "id": "patterns_found",
         "name": "Backtest patterns generated",
@@ -156,7 +160,7 @@ def verify_pipeline(request):
     })
     
     # 5. Chains
-    chain_count = GeneratedChain.objects.count()
+    chain_count = GeneratedChain.objects.filter(user=request.user).count()
     checks.append({
         "id": "chains_generated",
         "name": "Causal chains generated",

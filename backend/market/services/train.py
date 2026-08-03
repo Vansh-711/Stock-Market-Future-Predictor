@@ -24,7 +24,7 @@ def run_train(job_id):
         os.makedirs(MODEL_DIR, exist_ok=True)
         rows = []
         
-        events = NewsEvent.objects.select_related("company").all()
+        events = NewsEvent.objects.filter(user=job.user).select_related("company")
         total_events = events.count()
         
         for idx, event in enumerate(events):
@@ -37,7 +37,7 @@ def run_train(job_id):
                 pct = 10 + (idx / max(total_events, 1) * 40)
                 update_job(job, progress_percent=pct, items_done=idx, items_total=total_events)
                 
-            for rel in Relationship.objects.filter(company=event.company).select_related("related_company"):
+            for rel in Relationship.objects.filter(company=event.company, company__user=job.user).select_related("related_company"):
                 change_pct = get_price_change(rel.related_company.symbol, event.published_at, 5)
                 if change_pct is None:
                     continue
