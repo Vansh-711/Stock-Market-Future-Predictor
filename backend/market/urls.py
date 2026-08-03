@@ -15,4 +15,5 @@ urlpatterns = [
     path('model/metrics/', views.get_model_metrics, name='model_metrics'),
     path('verify/', views.verify_pipeline, name='verify_pipeline'),
     path("graph/stats/", views.graph_stats, name="company-graph-stats"),
+    path("clear/", views.clear_data, name="clear-data"),
 ]

@@ -48,7 +48,9 @@ export function BacktestResults({ isActive }: { isActive: boolean }) {
         </div>
         <div className="p-10 text-center flex flex-col items-center">
           <Info className="w-6 h-6 text-text-muted mb-2" />
-          <p className="text-body text-text-secondary">Awaiting backtest computation...</p>
+          <p className="text-body text-text-secondary">
+            {isActive ? "Awaiting backtest computation..." : "No patterns reached the minimum statistical significance threshold (n ≥ 3) in this dataset."}
+          </p>
         </div>
       </Card>
     );

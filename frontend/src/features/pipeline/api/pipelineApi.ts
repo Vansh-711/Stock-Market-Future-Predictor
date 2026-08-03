@@ -39,6 +39,8 @@ export const uploadPipelineFile = async (file: File) => {
 
 export const getPipelineJob = (jobId: string) => apiFetch<PipelineJob>(`/pipeline/jobs/${jobId}/`);
 
+export const getLatestPipelineJob = () => apiFetch<PipelineJob | null>('/pipeline/jobs/latest/');
+
 export const cancelPipelineJob = (jobId: string) =>
   apiFetch<PipelineJob>(`/pipeline/jobs/${jobId}/cancel/`, { method: 'POST' });
 
@@ -64,3 +66,5 @@ export type VerifyResult = {
 };
 
 export const verifyPipeline = () => apiFetch<VerifyResult>('/market/verify/', { method: 'POST' });
+
+export const clearPipelineData = () => apiFetch<{status: string, message: string}>('/market/clear/', { method: 'POST' });

@@ -1,55 +1,49 @@
 {
-  "n_samples": 448,
+  "n_samples": 52,
   "classification_report": {
     "0": {
-      "precision": 0.7857142857142857,
-      "recall": 0.9871794871794872,
-      "f1-score": 0.875,
-      "support": 78.0
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1-score": 0.8571428571428571,
+      "support": 9.0
     },
     "1": {
-      "precision": 0.9285714285714286,
-      "recall": 0.38235294117647056,
-      "f1-score": 0.5416666666666666,
-      "support": 34.0
+      "precision": 1.0,
+      "recall": 0.25,
+      "f1-score": 0.4,
+      "support": 4.0
     },
-    "accuracy": 0.8035714285714286,
+    "accuracy": 0.7692307692307693,
     "macro avg": {
-      "precision": 0.8571428571428572,
-      "recall": 0.6847662141779789,
-      "f1-score": 0.7083333333333333,
-      "support": 112.0
+      "precision": 0.875,
+      "recall": 0.625,
+      "f1-score": 0.6285714285714286,
+      "support": 13.0
     },
     "weighted avg": {
-      "precision": 0.8290816326530612,
-      "recall": 0.8035714285714286,
-      "f1-score": 0.7738095238095237,
-      "support": 112.0
+      "precision": 0.8269230769230769,
+      "recall": 0.7692307692307693,
+      "f1-score": 0.7164835164835164,
+      "support": 13.0
     }
   },
   "confusion_matrix": [
     [
-      77,
-      1
+      9,
+      0
     ],
     [
-      21,
-      13
+      3,
+      1
     ]
   ],
   "feature_coefficients": {
-    "event_type_earnings_miss": 1.0545,
-    "event_type_guidance_cut": 0.0,
-    "event_type_guidance_raise": -0.0894,
-    "event_type_lawsuit": 0.2726,
-    "event_type_other": -0.6519,
-    "event_type_product_launch": 0.4594,
-    "event_type_regulatory": 0.2875,
-    "relationship_type_customer": 1.0786,
-    "relationship_type_peer": -0.2022,
-    "relationship_type_supplier": -2.1849,
-    "sentiment_score": -0.2712,
-    "magnitude": -0.6726,
-    "sector_match": -1.3514
+    "event_type_other": 0.332,
+    "relationship_type_customer": 0.5232,
+    "relationship_type_peer": 0.7026,
+    "relationship_type_supplier": -1.6727,
+    "sentiment_score": -0.4658,
+    "magnitude": -0.1227,
+    "sector_match": -0.437
   }
 }

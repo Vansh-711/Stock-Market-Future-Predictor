@@ -4,6 +4,7 @@ import { InteractiveHoverButton } from '@/shared/ui/interactive-hover-button';
 import { Card } from '@/shared/ui/Card';
 import { uploadPipelineFile } from '@/features/pipeline/api/pipelineApi';
 import { useToast } from '@/shared/ui/Toast';
+import { FileUpload } from '@/shared/ui/file-upload';
 
 export function IngestUpload({ onUploadComplete }: { onUploadComplete: (data: { file_path: string, adapter_id: string, ingest_limit: number }) => void }) {
   const [isUploading, setIsUploading] = useState(false);
@@ -12,8 +13,8 @@ export function IngestUpload({ onUploadComplete }: { onUploadComplete: (data: { 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileChange = async (files: File[]) => {
+    const file = files[0];
     if (!file) return;
 
     setIsUploading(true);
@@ -104,27 +105,17 @@ export function IngestUpload({ onUploadComplete }: { onUploadComplete: (data: { 
   }
 
   return (
-    <Card className="border-dashed py-12 flex flex-col items-center justify-center text-center transition-colors hover:bg-surface-hover">
-      <UploadCloud className="w-8 h-8 text-accent mb-4" />
-      <h3 className="text-h3 text-text-primary">Upload news data</h3>
-      <p className="text-body text-text-secondary max-w-md mt-2">
-        Upload a JSON or CSV file containing corporate news events. We'll automatically detect the format and match tickers to the graph.
-      </p>
-      
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        className="hidden"
-        accept=".json,.jsonl,.csv"
-      />
-      
-      <InteractiveHoverButton
-        className="mt-6"
-        disabled={isUploading}
-        onClick={() => fileInputRef.current?.click()}
-        text={isUploading ? 'Uploading...' : 'Select File'}
-      />
+    <Card className="border border-border/50 bg-transparent shadow-none p-0 flex flex-col items-center justify-center text-center transition-colors">
+      <div className="w-full max-w-4xl mx-auto rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black">
+        {isUploading ? (
+           <div className="py-20 flex flex-col items-center justify-center text-center">
+             <UploadCloud className="w-8 h-8 text-accent mb-4 animate-bounce" />
+             <h3 className="text-h3 text-text-primary">Uploading & Analyzing...</h3>
+           </div>
+        ) : (
+          <FileUpload onChange={handleFileChange} />
+        )}
+      </div>
     </Card>
   );
 }

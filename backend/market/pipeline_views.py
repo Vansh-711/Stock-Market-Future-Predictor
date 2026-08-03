@@ -28,7 +28,8 @@ def serialize_job(job, include_logs=True):
         "created_at": job.created_at.isoformat(), "updated_at": job.updated_at.isoformat(),
     }
     if include_logs:
-        payload["logs"] = [serialize_log(log) for log in job.logs.all()[:100]]
+        logs_queryset = job.logs.order_by("-created_at")[:1000]
+        payload["logs"] = [serialize_log(log) for log in reversed(logs_queryset)]
     return payload
 
 
@@ -108,4 +109,13 @@ def cancel_job(request, job_id):
         return Response(serialize_job(job))
     update_job(job, cancel_requested=True, current_step="Cancellation requested")
     add_log(job, "Cancellation requested by user.", "warning")
+    return Response(serialize_job(job))
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([SpaSessionAuthentication])
+def latest_job(request):
+    job = PipelineJob.objects.filter(user=request.user).order_by("-created_at").first()
+    if not job:
+        return Response(None)
     return Response(serialize_job(job))

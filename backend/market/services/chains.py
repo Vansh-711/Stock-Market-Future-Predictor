@@ -12,7 +12,7 @@ from market.models import (
     GeneratedChain,
     PipelineJob,
 )
-from market.management.commands.run_backtest import EXPECTED_DIRECTION
+from market.services.backtest import EXPECTED_DIRECTION
 from accounts.models import UserSettings
 
 MODEL_PATH = os.path.join(

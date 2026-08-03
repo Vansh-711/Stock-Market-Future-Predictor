@@ -1,9 +1,13 @@
 from collections import Counter
 
 from rest_framework import viewsets, filters
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+
+from accounts.authentication import SpaSessionAuthentication
 
 from .models import Company, Relationship, NewsEvent, BacktestPattern, GeneratedChain
 from .serializers import (
@@ -109,7 +113,10 @@ def get_model_metrics(request):
         return Response({"error": f"Failed to read metrics: {str(e)}"}, status=500)
 
 
+@csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([SpaSessionAuthentication])
 def verify_pipeline(request):
     """
     Runs lightweight checks to ensure the pipeline populated data correctly.
@@ -174,3 +181,22 @@ def verify_pipeline(request):
         "all_passed": all_passed,
         "checks": checks
     })
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([SpaSessionAuthentication])
+def clear_data(request):
+    """
+    Completely wipes all data associated with the requesting user to start fresh.
+    """
+    from .models import Company, NewsEvent, BacktestPattern, GeneratedChain, PipelineJob
+    
+    # Deleting Company will cascade to Relationship
+    Company.objects.filter(user=request.user).delete()
+    NewsEvent.objects.filter(user=request.user).delete()
+    BacktestPattern.objects.filter(user=request.user).delete()
+    GeneratedChain.objects.filter(user=request.user).delete()
+    PipelineJob.objects.filter(user=request.user).delete()
+    
+    return Response({"status": "success", "message": "All user data cleared."})

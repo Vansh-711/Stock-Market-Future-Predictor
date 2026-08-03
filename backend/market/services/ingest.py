@@ -238,14 +238,15 @@ def run_ingest(job_id, file_path, adapter_id):
                     update_job(job, status="cancelled", current_step="Cancelled by user")
                     add_log(job, "Ingest cancelled.", "warning")
                     return
-                pct = 10 + (idx / max(total_lines, 1) * 80)
-                update_job(job, items_done=idx, progress_percent=pct)
-                
-                # Update records_created periodically
-                options = job.options_json or {}
-                options["records_created"] = created
-                job.options_json = options
-                job.save(update_fields=["options_json"])
+            
+            pct = 10 + (idx / max(total_lines, 1) * 80)
+            update_job(job, items_done=idx, progress_percent=pct)
+            
+            # Update records_created continuously so the UI progress bar is in perfect sync
+            options = job.options_json or {}
+            options["records_created"] = created
+            job.options_json = options
+            job.save(update_fields=["options_json"])
             
             title = (article.get("title") or "").strip()
             if not title:
@@ -264,10 +265,12 @@ def run_ingest(job_id, file_path, adapter_id):
             for raw_ticker in tickers:
                 ticker = str(raw_ticker).strip().upper()
                 if ticker not in known_companies:
+                    add_log(job, f"SKIP|Unknown Ticker ({ticker})|{title[:100]}", "info")
                     continue
                     
                 matched += 1
                 if NewsEvent.objects.filter(company__symbol=ticker, headline=title).exists():
+                    add_log(job, f"SKIP|Duplicate Found|{title[:100]}", "info")
                     continue
 
                 # Check limit FIRST — stop as soon as we've created enough
@@ -291,9 +294,11 @@ def run_ingest(job_id, file_path, adapter_id):
                     advice = looks_like_advice(title)
                     if advice and not hard:
                         skipped_soft += 1
+                        add_log(job, f"SKIP|Opinion/Advice|{title[:100]}", "info")
                         continue
                     if not hard:
                         skipped_soft += 1
+                        add_log(job, f"SKIP|No Hard Event|{title[:100]}", "info")
                         continue
 
                 if event_type_cache is None:
@@ -305,14 +310,14 @@ def run_ingest(job_id, file_path, adapter_id):
                                 classification_text, api_key, model=gemini_model
                             )
                             gemini_calls += 1
-                            add_log(job, f"API CALL [Gemini]: Classifying '{title[:40]}...' -> {event_type_cache[0]}")
+                            add_log(job, f"GEMINI|{event_type_cache[0]}|{title[:100]}")
                         except Exception as e:
                             add_log(job, f"Gemini failed ({e}), fallback for: {title[:50]}", "warning")
                             event_type_cache = classify_event_type_keyword(classification_text)
-                            add_log(job, f"API CALL [Keyword Fallback]: Classifying '{title[:40]}...' -> {event_type_cache[0]}")
+                            add_log(job, f"GEMINI|[Fallback] {event_type_cache[0]}|{title[:100]}")
                     else:
                         event_type_cache = classify_event_type_keyword(classification_text)
-                        add_log(job, f"API CALL [Keyword Mode]: Classifying '{title[:40]}...' -> {event_type_cache[0]}")
+                        add_log(job, f"GEMINI|[Keyword Mode] {event_type_cache[0]}|{title[:100]}")
                         
                 event_type, magnitude = event_type_cache
 
