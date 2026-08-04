@@ -39,10 +39,18 @@ export const uploadPipelineFile = async (file: File) => {
 
 export const getPipelineJob = (jobId: string) => apiFetch<PipelineJob>(`/pipeline/jobs/${jobId}/`);
 
-export const getLatestPipelineJob = () => apiFetch<PipelineJob | null>('/pipeline/jobs/latest/');
+export const getLatestPipelineJob = (type: 'manual' | 'scheduled' | 'any' = 'manual') => 
+  apiFetch<PipelineJob | null>(`/pipeline/jobs/latest/?type=${type}`);
 
 export const cancelPipelineJob = (jobId: string) =>
   apiFetch<PipelineJob>(`/pipeline/jobs/${jobId}/cancel/`, { method: 'POST' });
+
+export const triggerLiveIngest = (limit?: number) =>
+  apiFetch<PipelineJob>(`/pipeline/jobs/live/trigger/`, { 
+    method: 'POST',
+    body: limit ? JSON.stringify({ limit }) : undefined,
+    headers: limit ? { 'Content-Type': 'application/json' } : undefined
+  });
 
 export type ModelMetrics = {
   n_samples: number;

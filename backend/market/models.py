@@ -56,9 +56,19 @@ class NewsEvent(models.Model):
     magnitude = models.FloatField(help_text="0-1 estimated significance of the event")
     published_at = models.DateTimeField()
     source = models.CharField(max_length=100, blank=True)
+    is_live = models.BooleanField(default=False, help_text="True if ingested via live scheduler, False if from historical CSV upload")
+    dedup_hash = models.CharField(max_length=64, blank=True, db_index=True, unique=True, null=True,
+                                  help_text="SHA-256 of ticker+headline+date, prevents duplicate ingestion")
 
     class Meta:
         indexes = [models.Index(fields=["company", "published_at"])]
+
+    @staticmethod
+    def compute_dedup_hash(ticker: str, headline: str, published_date: str) -> str:
+        """Deterministic hash for deduplication. Call before Gemini to avoid wasting LLM calls."""
+        import hashlib
+        raw = f"{ticker.upper().strip()}|{headline.strip()[:500]}|{published_date}"
+        return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
     def __str__(self):
         return f"{self.company.symbol}: {self.headline[:60]}"
@@ -84,6 +94,10 @@ class BacktestPattern(models.Model):
 
 
 class GeneratedChain(models.Model):
+    SOURCE_CHOICES = [
+        ("backtest", "Historical Backtest"),
+        ("live", "Live Market Data"),
+    ]
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="generated_chains_list", null=True)
     trigger_event = models.ForeignKey(NewsEvent, related_name="generated_chains", on_delete=models.CASCADE)
     affected_company = models.ForeignKey(Company, related_name="affected_by_chains", on_delete=models.CASCADE)
@@ -92,10 +106,11 @@ class GeneratedChain(models.Model):
     model_confidence = models.FloatField(help_text="Probability from the logistic regression model")
     backtest_hit_rate = models.FloatField(null=True, blank=True)
     explanation = models.TextField()
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default="backtest")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.trigger_event.company.symbol} -> {self.affected_company.symbol}"
+        return f"[{self.source}] {self.trigger_event.company.symbol} -> {self.affected_company.symbol}"
 
 
 class PipelineJob(models.Model):
@@ -106,9 +121,14 @@ class PipelineJob(models.Model):
         ("failed", "Failed"),
         ("cancelled", "Cancelled"),
     ]
+    JOB_TYPE_CHOICES = [
+        ("manual", "Manual Batch"),
+        ("scheduled", "Scheduled Live Check"),
+    ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, related_name="pipeline_jobs")
+    job_type = models.CharField(max_length=20, choices=JOB_TYPE_CHOICES, default="manual")
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default="pending")
     current_phase = models.CharField(max_length=20, default="seed")
     progress_percent = models.FloatField(default=0)

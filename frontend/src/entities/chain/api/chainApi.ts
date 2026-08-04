@@ -6,3 +6,6 @@ export const getChainsBySymbol = (symbol: string) =>
 
 export const getChains = () =>
   apiFetch<GeneratedChain[]>(`/market/chains/`);
+
+export const getLiveUpdates = (afterId: number) =>
+  apiFetch<{ chains: GeneratedChain[] }>(`/market/chains/live_updates/?after_id=${afterId}`);

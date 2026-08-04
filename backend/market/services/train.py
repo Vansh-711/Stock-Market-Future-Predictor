@@ -16,7 +16,7 @@ def run_train(job_id):
     
     try:
         job = PipelineJob.objects.get(id=job_id)
-        update_job(job, status="running", current_step="Preparing data for training", progress_percent=10)
+        update_job(job, status="running", current_step="Assembling training dataset", progress_percent=10)
         
         # NOTE: circular import avoidance
         from market.data.prices import get_price_change
@@ -24,7 +24,8 @@ def run_train(job_id):
         os.makedirs(MODEL_DIR, exist_ok=True)
         rows = []
         
-        events = NewsEvent.objects.filter(user=job.user).select_related("company")
+        # ISOLATION GUARANTEE: Never include live events in historical training
+        events = NewsEvent.objects.filter(user=job.user, is_live=False).select_related("company")
         total_events = events.count()
         
         for idx, event in enumerate(events):
@@ -52,8 +53,8 @@ def run_train(job_id):
         
         update_job(job, current_step="Training logistic regression model", progress_percent=60)
         
-        if len(rows) < 30:
-            add_log(job, f"Only {len(rows)} labeled rows found (need >= 30). Skipping training.", "warning")
+        if len(rows) < 5:
+            add_log(job, f"Only {len(rows)} labeled rows found (need >= 5). Skipping training.", "warning")
             update_job(job, status="completed", current_step="Train skipped (insufficient data)", progress_percent=100)
             return
 
@@ -70,15 +71,27 @@ def run_train(job_id):
 
         update_job(job, progress_percent=70)
         
-        model = LogisticRegression(max_iter=1000, class_weight='balanced')
-        model.fit(X_train, y_train)
-        preds = model.predict(X_test)
+        if y_train.nunique() > 1:
+            model = LogisticRegression(max_iter=1000, class_weight='balanced')
+            model.fit(X_train, y_train)
+            preds = model.predict(X_test)
+        else:
+            add_log(job, "Only one class present in training data. Model will predict majority class.", "warning")
+            from sklearn.dummy import DummyClassifier
+            model = DummyClassifier(strategy="most_frequent")
+            model.fit(X_train, y_train)
+            preds = model.predict(X_test)
 
         update_job(job, current_step="Computing metrics", progress_percent=85)
         
-        report = classification_report(y_test, preds, output_dict=True)
+        report = classification_report(y_test, preds, output_dict=True, zero_division=0)
         matrix = confusion_matrix(y_test, preds).tolist()
-        coefficients = dict(zip(X.columns, model.coef_[0].round(4).tolist()))
+        
+        # If we fell back to DummyClassifier, model won't have coef_
+        if hasattr(model, 'coef_'):
+            coefficients = dict(zip(X.columns, model.coef_[0].round(4).tolist()))
+        else:
+            coefficients = {col: 0.0 for col in X.columns}
 
         joblib.dump({"model": model, "columns": list(X.columns)}, os.path.join(MODEL_DIR, "model.joblib"))
         

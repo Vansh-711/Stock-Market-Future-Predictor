@@ -2,10 +2,14 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from '@/widgets/navbar/ui/Navbar';
 import { useAuth } from '@/features/auth/model/AuthContext';
 import { CardSkeleton } from '@/shared/ui/Skeleton';
+import { useLiveChains } from '@/entities/chain/model/useLiveChains';
 
 export function ProtectedLayout() {
   const { user, isLoading } = useAuth();
   const location = useLocation();
+  
+  // Start background polling for new live chains
+  useLiveChains();
 
   if (isLoading) {
     return (

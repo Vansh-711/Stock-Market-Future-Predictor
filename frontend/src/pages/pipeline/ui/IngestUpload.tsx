@@ -2,14 +2,15 @@ import { useState, useRef } from 'react';
 import { UploadCloud, CheckCircle, AlertCircle, FileText } from 'lucide-react';
 import { InteractiveHoverButton } from '@/shared/ui/interactive-hover-button';
 import { Card } from '@/shared/ui/Card';
-import { uploadPipelineFile } from '@/features/pipeline/api/pipelineApi';
+import { uploadPipelineFile, triggerLiveIngest } from '@/features/pipeline/api/pipelineApi';
 import { useToast } from '@/shared/ui/Toast';
 import { FileUpload } from '@/shared/ui/file-upload';
 
-export function IngestUpload({ onUploadComplete }: { onUploadComplete: (data: { file_path: string, adapter_id: string, ingest_limit: number }) => void }) {
+export function IngestUpload({ onUploadComplete, onLiveJobCreated }: { onUploadComplete: (data: { file_path: string, adapter_id: string, ingest_limit: number }) => void, onLiveJobCreated?: (job: any) => void }) {
   const [isUploading, setIsUploading] = useState(false);
   const [previewData, setPreviewData] = useState<{ file_path: string, adapter: string, preview: any[], total_rows: number } | null>(null);
   const [ingestLimit, setIngestLimit] = useState<string>("400");
+  const [liveLimit, setLiveLimit] = useState<string>("5");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
 
@@ -74,7 +75,7 @@ export function IngestUpload({ onUploadComplete }: { onUploadComplete: (data: { 
               <table className="w-full text-left text-small">
                 <thead className="bg-surface-raised border-b border-border text-text-muted uppercase font-medium">
                   <tr>
-                    <th className="px-4 py-2">Ticker</th>
+                    <th className="px-4 py-2">Company</th>
                     <th className="px-4 py-2">Headline</th>
                   </tr>
                 </thead>
@@ -105,17 +106,49 @@ export function IngestUpload({ onUploadComplete }: { onUploadComplete: (data: { 
   }
 
   return (
-    <Card className="border border-border/50 bg-transparent shadow-none p-0 flex flex-col items-center justify-center text-center transition-colors">
-      <div className="w-full max-w-4xl mx-auto rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black">
-        {isUploading ? (
-           <div className="py-20 flex flex-col items-center justify-center text-center">
-             <UploadCloud className="w-8 h-8 text-accent mb-4 animate-bounce" />
-             <h3 className="text-h3 text-text-primary">Uploading & Analyzing...</h3>
-           </div>
-        ) : (
-          <FileUpload onChange={handleFileChange} />
-        )}
+    <div className="space-y-4">
+      <Card className="border border-border/50 bg-transparent shadow-none p-0 flex flex-col items-center justify-center text-center transition-colors">
+        <div className="w-full max-w-4xl mx-auto rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black">
+          {isUploading ? (
+             <div className="py-20 flex flex-col items-center justify-center text-center">
+               <UploadCloud className="w-8 h-8 text-accent mb-4 animate-bounce" />
+               <h3 className="text-h3 text-text-primary">Uploading & Analyzing...</h3>
+             </div>
+          ) : (
+            <FileUpload onChange={handleFileChange} />
+          )}
+        </div>
+      </Card>
+      
+      <div className="flex justify-center border-t border-border pt-6 mt-6">
+        <div className="text-center space-y-4">
+          <p className="text-body text-text-secondary">Already trained the model? Skip historical ingestion and poll for live events immediately.</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <label className="text-small-medium text-text-secondary whitespace-nowrap">Max News per Company:</label>
+            <input 
+              type="number" 
+              className="w-24 bg-surface rounded-control border border-border px-3 py-1.5 text-small text-text-primary focus:border-accent focus:outline-none" 
+              value={liveLimit} 
+              onChange={(e) => setLiveLimit(e.target.value)}
+              placeholder="All"
+            />
+          </div>
+          <InteractiveHoverButton 
+            className="w-full max-w-sm mx-auto border-accent text-accent hover:bg-accent hover:text-white"
+            onClick={async () => {
+              try {
+                const limitNum = parseInt(liveLimit, 10);
+                const newJob = await triggerLiveIngest(isNaN(limitNum) ? undefined : limitNum);
+                if (onLiveJobCreated) onLiveJobCreated(newJob);
+                showToast('success', 'Live ingest triggered successfully.');
+              } catch (err) {
+                showToast('error', 'Failed to trigger live ingest.');
+              }
+            }} 
+            text="Force Fetch Live News" 
+          />
+        </div>
       </div>
-    </Card>
+    </div>
   );
 }

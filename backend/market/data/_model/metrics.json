@@ -1,51 +1,51 @@
 {
-  "n_samples": 376,
+  "n_samples": 402,
   "classification_report": {
     "0": {
-      "precision": 0.0,
-      "recall": 0.0,
-      "f1-score": 0.0,
-      "support": 34.0
+      "precision": 0.34615384615384615,
+      "recall": 0.5,
+      "f1-score": 0.4090909090909091,
+      "support": 36.0
     },
     "1": {
-      "precision": 0.6382978723404256,
-      "recall": 1.0,
-      "f1-score": 0.7792207792207793,
-      "support": 60.0
+      "precision": 0.6326530612244898,
+      "recall": 0.47692307692307695,
+      "f1-score": 0.543859649122807,
+      "support": 65.0
     },
-    "accuracy": 0.6382978723404256,
+    "accuracy": 0.48514851485148514,
     "macro avg": {
-      "precision": 0.3191489361702128,
-      "recall": 0.5,
-      "f1-score": 0.38961038961038963,
-      "support": 94.0
+      "precision": 0.489403453689168,
+      "recall": 0.4884615384615385,
+      "f1-score": 0.47647527910685805,
+      "support": 101.0
     },
     "weighted avg": {
-      "precision": 0.4074241738343142,
-      "recall": 0.6382978723404256,
-      "f1-score": 0.49737496546007187,
-      "support": 94.0
+      "precision": 0.5305345291201019,
+      "recall": 0.48514851485148514,
+      "f1-score": 0.49582326653718006,
+      "support": 101.0
     }
   },
   "confusion_matrix": [
     [
-      0,
-      34
+      18,
+      18
     ],
     [
-      0,
-      60
+      34,
+      31
     ]
   ],
   "feature_coefficients": {
-    "event_type_guidance_cut": 0.0,
-    "event_type_other": 0.6649,
-    "event_type_product_launch": 0.2036,
-    "relationship_type_customer": -0.5132,
-    "relationship_type_peer": -0.0934,
-    "relationship_type_supplier": -0.6767,
-    "sentiment_score": 0.0147,
-    "magnitude": 0.251,
-    "sector_match": 0.1389
+    "event_type_other": -0.186,
+    "event_type_product_launch": 0.0279,
+    "event_type_supply_disruption": -0.3618,
+    "relationship_type_customer": -0.9041,
+    "relationship_type_peer": 0.2484,
+    "relationship_type_supplier": -0.1908,
+    "sentiment_score": -0.0586,
+    "magnitude": 0.4552,
+    "sector_match": 0.1903
   }
 }

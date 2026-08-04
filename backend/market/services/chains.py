@@ -145,7 +145,7 @@ def run_chains(job_id):
         prefer_patterns = bool(job.options_json.get("chains_prefer_patterns", True))
 
         events = (
-            NewsEvent.objects.filter(user=job.user)
+            NewsEvent.objects.filter(user=job.user, is_live=False)
             .exclude(event_type="other")
             .select_related("company")
             .order_by("-published_at")
@@ -268,3 +268,109 @@ def run_chains(job_id):
         if job:
             update_job(job, status="failed", current_step="Chains generation failed", error_message=str(exc))
             add_log(job, f"Chains error: {type(exc).__name__}", "error")
+
+def score_live_event(event):
+    """
+    Scores a single live NewsEvent and generates chains for it, completely
+    isolated from the batch `run_chains` pipeline.
+    """
+    if not os.path.exists(MODEL_PATH):
+        bundle = None
+    else:
+        bundle = joblib.load(MODEL_PATH)
+        
+    user = event.user
+    user_settings = UserSettings.objects.filter(user=user).first() if user else None
+    api_key = None
+    if user_settings and user_settings.gemini_api_key_encrypted:
+        from cryptography.fernet import Fernet
+        from django.conf import settings
+        cipher = Fernet(settings.FIELD_ENCRYPTION_KEY.encode())
+        try:
+            api_key = cipher.decrypt(user_settings.gemini_api_key_encrypted.encode()).decode()
+        except Exception:
+            pass
+
+    gemini_model = user_settings.gemini_model if user_settings else "gemini-3.1-flash-lite"
+    client = None
+    if api_key:
+        try:
+            from google import genai
+            client = genai.Client(api_key=api_key)
+        except Exception:
+            pass
+
+    relationships = Relationship.objects.filter(
+        company=event.company,
+        company__user=user
+    ).select_related("related_company")
+    
+    created = 0
+    for rel in relationships:
+        expected = EXPECTED_DIRECTION.get((event.event_type, rel.relationship_type))
+        if not expected:
+            continue
+
+        # For live scoring, we grab the 5-day window pattern by default if it exists
+        pattern = BacktestPattern.objects.filter(
+            user=user,
+            trigger_event_type=event.event_type,
+            relationship_type=rel.relationship_type,
+            window_days=5,
+        ).first()
+        
+        # Fallback to any window size if 5-day doesn't exist
+        if pattern is None:
+            pattern = BacktestPattern.objects.filter(
+                user=user,
+                trigger_event_type=event.event_type,
+                relationship_type=rel.relationship_type,
+            ).order_by("-sample_size").first()
+
+        direction = pattern.predicted_direction if pattern else expected
+        hit_rate = pattern.hit_rate if pattern else None
+
+        if GeneratedChain.objects.filter(
+            user=user,
+            trigger_event=event,
+            affected_company=rel.related_company,
+            relationship_type=rel.relationship_type,
+        ).exists():
+            continue
+
+        confidence = 0.5
+        if bundle:
+            try:
+                confidence = model_confidence(bundle, event, rel, direction)
+            except Exception:
+                pass
+
+        try:
+            if client:
+                explanation = gemini_explanation(
+                    event, rel, direction, hit_rate, confidence, client, gemini_model, max_retries=2
+                )
+            else:
+                explanation = template_explanation(
+                    event, rel, direction, hit_rate, confidence
+                )
+        except Exception:
+            explanation = template_explanation(
+                event, rel, direction, hit_rate, confidence
+            )
+
+        GeneratedChain.objects.create(
+            user=user,
+            trigger_event=event,
+            affected_company=rel.related_company,
+            relationship_type=rel.relationship_type,
+            predicted_direction=direction,
+            model_confidence=round(confidence, 4),
+            backtest_hit_rate=hit_rate,
+            explanation=explanation,
+            source="live"
+        )
+        created += 1
+        
+    return created
+

@@ -63,7 +63,7 @@ export function PipelinePage() {
   const logsContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    pipelineApi.getLatestPipelineJob()
+    pipelineApi.getLatestPipelineJob('any')
       .then((latestJob) => {
         if (latestJob) setJob(latestJob);
       })
@@ -299,9 +299,16 @@ export function PipelinePage() {
           {currentTab === 1 && (
             <motion.div key="tab-1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="space-y-6">
               {!job || isUploadingNew ? (
-                <IngestUpload onUploadComplete={(data) => { setIsUploadingNew(false); start(['seed', 'ingest', 'backtest', 'train', 'chains'], data); }} />
+                <IngestUpload 
+                  onUploadComplete={(data) => { setIsUploadingNew(false); start(['seed', 'ingest', 'backtest', 'train', 'chains'], data); }} 
+                  onLiveJobCreated={(newJob) => { setIsUploadingNew(false); setJob(newJob); }} 
+                />
               ) : (
-                <IngestLiveFeed job={job} isActive={job.status === 'running' && job.phase === 'ingest'} />
+                <IngestLiveFeed 
+                  job={job} 
+                  isActive={job.status === 'running' && job.phase === 'ingest'} 
+                  onLiveJobCreated={(newJob) => setJob(newJob)} 
+                />
               )}
             </motion.div>
           )}

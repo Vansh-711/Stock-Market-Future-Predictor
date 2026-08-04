@@ -72,7 +72,7 @@ export function CompanyDetailPage() {
         <EmptyState
           icon={<Building2 className="h-8 w-8" aria-hidden="true" />}
           title="No company found"
-          description="The requested ticker is not available in the current company universe."
+          description="The requested company is not available in the current company universe."
           actionLabel="Retry"
           onAction={refetch}
         />

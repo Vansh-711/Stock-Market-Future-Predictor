@@ -27,7 +27,7 @@ export function PatternsPage() {
       if (filters.eventType && pattern.trigger_event_type !== filters.eventType) return false;
       if (filters.relationshipType && pattern.relationship_type !== filters.relationshipType) return false;
       if (filters.windowDays && pattern.window_days !== Number(filters.windowDays)) return false;
-      return pattern.sample_size >= 3;
+      return pattern.sample_size >= 1;
     });
   }, [data, filters]);
 
@@ -35,7 +35,7 @@ export function PatternsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-display text-text-primary">Validated patterns</h1>
-        <p className="mt-3 text-body text-text-secondary">Historical hit-rate for every event-relationship pattern with at least 3 observed instances.</p>
+        <p className="mt-3 text-body text-text-secondary">Historical hit-rate for every event-relationship pattern with at least 1 observed instance.</p>
       </div>
 
       {status === 'success' && data ? (
@@ -51,7 +51,7 @@ export function PatternsPage() {
           <EmptyState
             icon={<BarChart3 className="h-8 w-8" aria-hidden="true" />}
             title="No patterns yet"
-            description="Patterns with at least 3 observed instances will appear after backtests are computed."
+            description="Patterns with at least 1 observed instance will appear after backtests are computed."
           />
         ) : (
           <PatternTable patterns={filteredPatterns} />

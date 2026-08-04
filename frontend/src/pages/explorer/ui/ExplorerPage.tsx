@@ -141,7 +141,7 @@ export function ExplorerPage() {
               <EmptyState
                 icon={<Network className="h-8 w-8" aria-hidden="true" />}
                 title="No companies match"
-                description="Adjust the company search to find another ticker, name, or sector."
+                description="Adjust the company search to find another company, name, or sector."
               />
             ) : (
               <MobileCompanyList companies={filteredCompanies} selectedSymbol={selectedSymbol} onSelect={handleSelectCompany} />

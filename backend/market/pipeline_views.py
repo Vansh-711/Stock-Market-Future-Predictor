@@ -10,6 +10,7 @@ from market.pipeline import add_log, start_job, update_job
 import os
 from django.core.files.storage import default_storage
 from market.services.ingest import detect_file_format, preview_file
+from market.services.live_ingest import run_live_ingest
 
 
 def serialize_log(log):
@@ -115,7 +116,40 @@ def cancel_job(request, job_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([SpaSessionAuthentication])
 def latest_job(request):
-    job = PipelineJob.objects.filter(user=request.user).order_by("-created_at").first()
+    job_type = request.query_params.get("type", "manual")
+    if job_type == "any":
+        job = PipelineJob.objects.filter(user=request.user).order_by("-created_at").first()
+    else:
+        job = PipelineJob.objects.filter(user=request.user, job_type=job_type).order_by("-created_at").first()
     if not job:
         return Response(None)
+    return Response(serialize_job(job))
+
+import threading
+
+@csrf_exempt
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+@authentication_classes([SpaSessionAuthentication])
+def trigger_live_ingest(request):
+    limit = request.data.get("limit")
+    if limit is not None:
+        try:
+            limit = int(limit)
+        except ValueError:
+            limit = None
+            
+    job = PipelineJob.objects.create(
+        user=request.user,
+        job_type="scheduled",
+        status="running",
+        current_phase="ingest",
+        current_step="Starting live fetch...",
+        progress_percent=0
+    )
+    def bg_run():
+        run_live_ingest(request.user, existing_job=job, limit=limit)
+    thread = threading.Thread(target=bg_run)
+    thread.daemon = True
+    thread.start()
     return Response(serialize_job(job))

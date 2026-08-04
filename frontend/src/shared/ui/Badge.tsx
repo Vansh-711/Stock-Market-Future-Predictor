@@ -44,6 +44,35 @@ export function HitRateBadge({ hitRate, sampleSize }: { hitRate: number; sampleS
   );
 }
 
+import { AlertTriangle } from 'lucide-react';
+import type { GeneratedChain, EnrichedChain } from '@/entities/chain/model/types';
+
+export function SourceBadge({ chain }: { chain: GeneratedChain | EnrichedChain }) {
+  if (chain.source === 'backtest') {
+    return (
+      <PillBadge className="bg-surface-raised text-text-secondary border border-border">
+        Backtested
+      </PillBadge>
+    );
+  }
+
+  if (chain.source === 'live' && chain.backtest_hit_rate !== null) {
+    return (
+      <PillBadge className="bg-warning-muted text-warning">
+        <span className="h-dot w-dot rounded-pill bg-warning" aria-hidden="true" />
+        Live — Pattern Match
+      </PillBadge>
+    );
+  }
+
+  return (
+    <PillBadge className="border border-negative/30 bg-negative-muted/10 text-negative flex items-center gap-1.5">
+      <AlertTriangle className="h-3 w-3" />
+      Live — ML Estimate Only
+    </PillBadge>
+  );
+}
+
 export function LiveSourceBadge({ type }: { type: 'live data' | 'historical' }) {
   return (
     <span className="inline-flex items-center gap-2 text-small text-text-secondary">

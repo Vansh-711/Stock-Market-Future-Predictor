@@ -77,21 +77,6 @@ export function VerifyResults({ isCompleted }: { isCompleted: boolean }) {
                 ))}
               </ul>
             </div>
-
-            <div className="bg-surface-raised rounded-control border border-border p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div>
-                <p className="text-body-medium text-text-primary flex items-center gap-2">
-                  <TerminalSquare className="w-4 h-4 text-accent" /> API Base URL
-                </p>
-                <p className="text-small text-text-muted mt-1">For frontend developers connecting to the API</p>
-              </div>
-              <div className="flex items-center gap-2 w-full md:w-auto">
-                <code className="bg-canvas border border-border rounded px-3 py-1.5 text-small font-data text-text-primary flex-1">
-                  {API_BASE_URL}
-                </code>
-                <InteractiveHoverButton onClick={copyUrl} className="shrink-0" text={copied ? 'Copied!' : 'Copy URL'} />
-              </div>
-            </div>
           </div>
         ) : (
           <div className="text-center py-6 text-text-muted">Verification failed to run.</div>

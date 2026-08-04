@@ -44,4 +44,4 @@ class GeneratedChainSerializer(serializers.ModelSerializer):
         fields = ["id", "trigger_event", "trigger_headline", "trigger_symbol",
                   "affected_company", "affected_symbol", "relationship_type",
                   "predicted_direction", "model_confidence", "backtest_hit_rate",
-                  "explanation", "created_at"]
+                  "explanation", "source", "created_at"]

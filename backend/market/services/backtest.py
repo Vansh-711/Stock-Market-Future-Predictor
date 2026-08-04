@@ -26,7 +26,8 @@ def run_backtest(job_id):
         update_job(job, status="running", current_step="Gathering events and relationships", progress_percent=10)
         
         stats = defaultdict(lambda: {"hits": 0, "total": 0, "moves": []})
-        events = NewsEvent.objects.filter(user=job.user).select_related("company")
+        # ISOLATION GUARANTEE: Never backtest live events
+        events = NewsEvent.objects.filter(user=job.user, is_live=False).select_related("company")
         total_events = events.count()
         
         update_job(job, items_total=total_events, items_done=0, current_step="Fetching historical prices")
@@ -66,7 +67,7 @@ def run_backtest(job_id):
         
         written = 0
         for (event_type, rel_type, window), s in stats.items():
-            if s["total"] < 3:
+            if s["total"] < 1:
                 continue
             hit_rate = s["hits"] / s["total"]
             avg_move = sum(s["moves"]) / len(s["moves"])

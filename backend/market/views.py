@@ -62,6 +62,19 @@ class GeneratedChainViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(trigger_event__company__symbol=symbol.upper())
         return qs
 
+    @action(detail=False, methods=['get'])
+    def live_updates(self, request):
+        """
+        Returns only new 'live' chains created after the provided `after_id`.
+        """
+        after_id = request.query_params.get("after_id")
+        if not after_id or not after_id.isdigit():
+            return Response({"chains": []})
+        
+        qs = self.get_queryset().filter(source="live", id__gt=int(after_id)).order_by("id")
+        serializer = self.get_serializer(qs, many=True)
+        return Response({"chains": serializer.data})
+
     @action(detail=True, methods=['get'])
     def evidence(self, request, pk=None):
         chain = self.get_object()
@@ -225,4 +238,13 @@ def clear_data(request):
     GeneratedChain.objects.filter(user=request.user).delete()
     PipelineJob.objects.filter(user=request.user).delete()
     
-    return Response({"status": "success", "message": "All user data cleared."})
+    import os
+    from django.conf import settings
+    import shutil
+    
+    # Also delete the stored model metrics and joblib files to prevent UI ghosting
+    MODEL_DIR = os.path.join(settings.BASE_DIR, "market", "data", "_model")
+    if os.path.exists(MODEL_DIR):
+        shutil.rmtree(MODEL_DIR)
+    
+    return Response({"status": "success", "message": "All user data and models cleared."})

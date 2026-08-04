@@ -2,15 +2,17 @@ import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Card } from '@/shared/ui/Card';
 import { Terminal, ShieldAlert, Sparkles, Filter } from 'lucide-react';
+import { triggerLiveIngest } from '@/features/pipeline/api/pipelineApi';
 import type { PipelineJob } from '@/features/pipeline/api/pipelineApi';
 import { formatInteger } from '@/shared/lib/format';
+import { InteractiveHoverButton } from '@/shared/ui/interactive-hover-button';
 
-export function IngestLiveFeed({ job, isActive }: { job: PipelineJob, isActive: boolean }) {
+export function IngestLiveFeed({ job, isActive, onLiveJobCreated }: { job: PipelineJob, isActive: boolean, onLiveJobCreated?: (job: any) => void }) {
   const feedContainerRef = useRef<HTMLDivElement>(null);
   const logs = job.logs || [];
 
   // Extract structured logs for the feed
-  const feedLogs = logs.filter(log => log.message.startsWith('SKIP|') || log.message.startsWith('GEMINI|'));
+  const feedLogs = logs.filter(log => log.message.startsWith('SKIP|') || log.message.startsWith('GEMINI|') || log.message.startsWith('SYSTEM|'));
 
   useEffect(() => {
     if (feedContainerRef.current) {
@@ -33,33 +35,6 @@ export function IngestLiveFeed({ job, isActive }: { job: PipelineJob, isActive: 
         </div>
       </div>
 
-      <div className="bg-canvas border-b border-border/50 p-5">
-        <div className="flex items-baseline justify-between gap-4 mb-2">
-          <div>
-            <p className="text-body-medium text-text-primary">File Scanning Progress</p>
-            <p className="mt-1 text-small text-text-secondary">
-              {job.items_total ? `${formatInteger(job.items_done)} of ${formatInteger(job.items_total)} lines processed` : 'Preparing file...'}
-            </p>
-          </div>
-          <span className="text-data-lg text-text-primary">{Math.round(job.progress_percent)}%</span>
-        </div>
-        <div className="h-1.5 overflow-hidden rounded-pill bg-surface-raised mb-4">
-          <div className="h-full rounded-pill bg-accent transition-all duration-300" style={{ width: `${Math.max(2, job.progress_percent)}%` }} />
-        </div>
-
-        {job.records_target > 0 && (
-          <div>
-            <div className="flex items-center justify-between text-small text-text-secondary mb-1.5">
-              <span>{job.records_created || 0} of {job.records_target} accepted headlines</span>
-              <span>{Math.round(((job.records_created || 0) / job.records_target) * 100)}%</span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-pill bg-surface-raised">
-              <div className="h-full rounded-pill bg-positive transition-all duration-300" style={{ width: `${Math.min(100, ((job.records_created || 0) / job.records_target) * 100)}%` }} />
-            </div>
-          </div>
-        )}
-      </div>
-      
       <div ref={feedContainerRef} className="max-h-[400px] overflow-y-auto p-4 space-y-2 font-data text-small">
         <AnimatePresence initial={false}>
           {feedLogs.map((log) => {
@@ -85,8 +60,11 @@ export function IngestLiveFeed({ job, isActive }: { job: PipelineJob, isActive: 
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-1">
-                    <span className={`text-small-medium uppercase tracking-wider ${isSkip ? 'text-negative' : 'text-positive'}`}>
-                      {isSkip ? 'REJECTED' : 'ACCEPTED'}
+                    <span className={`text-small-medium uppercase tracking-wider ${
+                      log.message.startsWith('SYSTEM|') ? 'text-accent' :
+                      isSkip ? 'text-negative' : 'text-positive'
+                    }`}>
+                      {log.message.startsWith('SYSTEM|') ? 'SYSTEM ALERT' : (isSkip ? 'REJECTED' : 'ACCEPTED')}
                     </span>
                     <span className="text-[10px] opacity-60">
                       {new Date(log.created_at).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}
@@ -96,7 +74,7 @@ export function IngestLiveFeed({ job, isActive }: { job: PipelineJob, isActive: 
                     {headline}
                   </div>
                   <div className="text-[11px] font-sans">
-                    <span className="opacity-70">Reason: </span>
+                    <span className="opacity-70">{log.message.startsWith('SYSTEM|') ? 'Message: ' : 'Reason: '}</span>
                     <span className={isSkip ? 'text-negative' : 'text-accent'}>{type}</span>
                   </div>
                 </div>
@@ -112,6 +90,24 @@ export function IngestLiveFeed({ job, isActive }: { job: PipelineJob, isActive: 
           </div>
         )}
       </div>
+
+      {!isActive && (
+        <div className="p-5 border-t border-border/50 bg-surface flex flex-col items-center gap-3">
+          <p className="text-body text-text-secondary text-center">Already trained the model? Poll for live events immediately.</p>
+          <InteractiveHoverButton 
+            className="w-full max-w-sm mx-auto border-accent text-accent hover:bg-accent hover:text-white"
+            onClick={async () => {
+              try {
+                const newJob = await triggerLiveIngest(5);
+                if (onLiveJobCreated) onLiveJobCreated(newJob);
+              } catch (err) {
+                console.error(err);
+              }
+            }}
+            text="Force Fetch Live News"
+          />
+        </div>
+      )}
     </Card>
   );
 }

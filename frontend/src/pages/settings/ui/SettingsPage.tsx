@@ -140,6 +140,7 @@ export function SettingsPage() {
             <div className="flex items-center gap-3"><SlidersHorizontal className="h-icon w-icon text-accent" aria-hidden="true" /><h2 className="text-h3 text-text-primary">Model policy</h2></div>
             <div className="mt-5 space-y-5">
               <Select label="Gemini model" name="gemini-model" value={model} onChange={(event) => setModel(event.target.value)}>
+                <option value="gemini-3.5-flash-lite">Gemini 3.5 Flash-Lite</option>
                 <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash-Lite — recommended</option>
                 <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
               </Select>

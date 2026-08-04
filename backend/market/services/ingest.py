@@ -65,7 +65,7 @@ def _parse_llm_json(text_out):
     data = json.loads(text_out)
     return data.get("event_type", "other"), float(data.get("magnitude", 0.2))
 
-def classify_event_type_gemini(text, api_key, model="gemini-3.1-flash-lite", max_retries=4):
+def classify_event_type_gemini(text, api_key, model="gemini-3.1-flash-lite", max_retries=4, job=None):
     try:
         from google import genai
         client = genai.Client(api_key=api_key)
@@ -99,6 +99,9 @@ def classify_event_type_gemini(text, api_key, model="gemini-3.1-flash-lite", max
                 retry_match = re.search(r"retry in (\d+(?:\.\d+)?)s", err, re.IGNORECASE)
                 if retry_match:
                     wait_s = min(90, float(retry_match.group(1)) + 2)
+                if job:
+                    from market.pipeline import add_log
+                    add_log(job, f"SYSTEM|Rate Limit Hit|Sleeping {wait_s}s...", "warning")
                 time.sleep(wait_s)
                 continue
             raise
@@ -265,11 +268,13 @@ def run_ingest(job_id, file_path, adapter_id):
             for raw_ticker in tickers:
                 ticker = str(raw_ticker).strip().upper()
                 if ticker not in known_companies:
-                    add_log(job, f"SKIP|Unknown Ticker ({ticker})|{title[:100]}", "info")
+                    add_log(job, f"SKIP|Unknown Company ({ticker})|{title[:100]}", "info")
                     continue
                     
                 matched += 1
-                if NewsEvent.objects.filter(company__symbol=ticker, headline=title).exists():
+                pub_date_str = published_at.strftime("%Y-%m-%d")
+                dedup_hash = NewsEvent.compute_dedup_hash(ticker, title, pub_date_str)
+                if NewsEvent.objects.filter(dedup_hash=dedup_hash).exists():
                     add_log(job, f"SKIP|Duplicate Found|{title[:100]}", "info")
                     continue
 
@@ -307,7 +312,7 @@ def run_ingest(job_id, file_path, adapter_id):
                             if gemini_calls > 0 and gemini_delay > 0:
                                 time.sleep(gemini_delay)
                             event_type_cache = classify_event_type_gemini(
-                                classification_text, api_key, model=gemini_model
+                                classification_text, api_key, model=gemini_model, job=job
                             )
                             gemini_calls += 1
                             add_log(job, f"GEMINI|{event_type_cache[0]}|{title[:100]}")
@@ -332,6 +337,7 @@ def run_ingest(job_id, file_path, adapter_id):
                         magnitude=magnitude,
                         published_at=published_at,
                         source=pub_name[:100],
+                        dedup_hash=dedup_hash,
                     )
                     created += 1
                 except Exception as e:

@@ -13,6 +13,7 @@ export type GeneratedChain = {
   model_confidence: number;
   backtest_hit_rate: number;
   explanation: string;
+  source: 'backtest' | 'live';
   created_at: string;
 };
 

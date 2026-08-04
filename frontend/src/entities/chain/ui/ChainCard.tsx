@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { CompanyBadge } from '@/entities/company/ui/CompanyBadge';
 import type { EnrichedChain, GeneratedChain } from '@/entities/chain/model/types';
-import { ConfidenceBadge, DirectionBadge, HitRateBadge } from '@/shared/ui/Badge';
+import { ConfidenceBadge, DirectionBadge, HitRateBadge, SourceBadge } from '@/shared/ui/Badge';
 import { Card } from '@/shared/ui/Card';
 import { cn } from '@/shared/lib/cn';
 
@@ -43,9 +43,12 @@ export function ChainCard({ chain, compact = false, expanded = false, className,
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
+            <SourceBadge chain={chain} />
             <DirectionBadge direction={chain.predicted_direction} />
             <ConfidenceBadge confidence={chain.model_confidence} />
-            <HitRateBadge hitRate={chain.backtest_hit_rate} sampleSize={sampleSize} />
+            {chain.backtest_hit_rate !== null ? (
+              <HitRateBadge hitRate={chain.backtest_hit_rate} sampleSize={sampleSize} />
+            ) : null}
           </div>
 
           <p className={cn('mt-4 text-body text-text-secondary', expanded ? '' : compact ? 'line-clamp-2' : 'line-clamp-3')}>{chain.explanation}</p>

@@ -23,23 +23,43 @@ def _normalize_index(df):
     return out
 
 
+def _is_stale(df):
+    """
+    Returns True if the most recent data point is older than 2 calendar days
+    (covers weekends: Friday data is still fresh on Sunday).
+    """
+    if df is None or df.empty:
+        return True
+    last_date = df.index[-1]
+    age = (pd.Timestamp.now() - last_date).days
+    return age > 2
+
+
 def _load_history(symbol):
     if symbol in _memory_cache:
-        return _memory_cache[symbol]
+        df = _memory_cache[symbol]
+        # Even if in memory, check staleness for live-path freshness
+        if not _is_stale(df):
+            return df
+        # Stale in memory — fall through to re-fetch
 
     cache_path = os.path.join(_CACHE_DIR, f"{symbol}.csv")
     if os.path.exists(cache_path):
         df = pd.read_csv(cache_path, index_col=0, parse_dates=True)
         df = _normalize_index(df)
+        if not _is_stale(df):
+            _memory_cache[symbol] = df
+            return df
+        # Cache file exists but is stale — re-fetch below
+
+    import yfinance as yf
+    # Use 5y instead of 2y to ensure we cover historical dataset events
+    df = yf.Ticker(symbol).history(period="5y")
+    if df.empty:
+        df = pd.DataFrame()
     else:
-        import yfinance as yf
-        # Use 5y instead of 2y to ensure we cover historical dataset events
-        df = yf.Ticker(symbol).history(period="5y")
-        if df.empty:
-            df = pd.DataFrame()
-        else:
-            df = _normalize_index(df)
-            df.to_csv(cache_path)
+        df = _normalize_index(df)
+        df.to_csv(cache_path)
 
     _memory_cache[symbol] = df
     return df
