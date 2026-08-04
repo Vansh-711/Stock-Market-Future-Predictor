@@ -70,6 +70,17 @@ export function ChainEvidenceGraph({ chainId, windowDays }: { chainId: number; w
   const maxPrice = Math.max(...prices);
   const padding = (maxPrice - minPrice) * 0.1 || maxPrice * 0.05;
 
+  let closestDate = data.event_date;
+  if (filteredData.length > 0) {
+    const eventTime = new Date(data.event_date).getTime();
+    const closestPoint = filteredData.reduce((prev: any, curr: any) => {
+      const prevDiff = Math.abs(new Date(prev.date).getTime() - eventTime);
+      const currDiff = Math.abs(new Date(curr.date).getTime() - eventTime);
+      return currDiff < prevDiff ? curr : prev;
+    });
+    closestDate = closestPoint.date;
+  }
+
   return (
     <div className="mt-4 pt-4 border-t border-border">
       <div className="mb-6 flex flex-col gap-1 rounded-card bg-surface-raised p-4 border border-border relative overflow-hidden group/card transition-all duration-500 hover:shadow-popover hover:border-accent/30">
@@ -125,7 +136,7 @@ export function ChainEvidenceGraph({ chainId, windowDays }: { chainId: number; w
                 contentStyle={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border)', borderRadius: '8px', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', background: 'rgba(var(--surface-rgb), 0.8)' }} 
                 itemStyle={{ color: 'var(--text-primary)' }}
               />
-              <ReferenceLine x={data.event_date} stroke="var(--accent)" strokeDasharray="3 3" strokeWidth={1.5} label={{ position: 'top', value: 'Trigger Date', fill: 'var(--accent)', fontSize: 12, fontWeight: 600 }} />
+              <ReferenceLine x={closestDate} stroke="var(--accent)" strokeDasharray="3 3" strokeWidth={1.5} label={{ position: 'top', value: 'Trigger Date', fill: 'var(--accent)', fontSize: 12, fontWeight: 600 }} />
               <Line 
                 type="monotone" 
                 dataKey="price" 
